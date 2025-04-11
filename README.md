@@ -1,8 +1,8 @@
-## CMake Tutorial
-### Using Project
+## Using Project
 
 #### 1. Pull the repository
-
+Clone this repository
+`git clone --recurse-submodules https://github.com/Skivap/OpenGL-Template.git`
 
 #### 2. Build the project using CMake
 1. `cd build`
@@ -22,3 +22,9 @@ After compilation, you can run the executable directly from the build directory 
 - Specification : OpenGL
 - gl version    : 4.6
 - Profile       : Compability
+
+#### GLFW Specification
+Based on the submodule
+
+#### Eigen Specification
+Based on the submodule
