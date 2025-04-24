@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.11)
 
 # ==========================================
 # Configurable Variables
-set(PROJECT_NAME_VAR template)
+set(PROJECT_NAME_VAR app)
 # ==========================================
 
 # Declare Project
 project(${PROJECT_NAME_VAR} VERSION 1.0.0 LANGUAGES C CXX)
 
 # C++ Version
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ==========================================
@@ -27,7 +27,25 @@ add_subdirectory(external/glfw)
 
 add_executable(${PROJECT_NAME_VAR}
     src/main.cpp
-    src/glad.c
+    src/Engine.cpp
+    src/Renderer.cpp
+    src/Trackball.cpp
+
+    # Object
+    src/Object/BaseObject.cpp
+    src/Object/Plane.cpp
+
+    # imgui
+    external/imgui/src/imgui.cpp
+    external/imgui/src/imgui_demo.cpp
+    external/imgui/src/imgui_draw.cpp
+    external/imgui/src/imgui_tables.cpp
+    external/imgui/src/imgui_widgets.cpp
+    external/imgui/src/imgui_impl_opengl3.cpp
+    external/imgui/src/imgui_impl_glfw.cpp
+
+    # glad
+    external/glad/src/glad.c
 )
 
 # ==========================================
@@ -43,4 +61,6 @@ target_include_directories(${PROJECT_NAME_VAR}
         external/eigen
         external/glfw/include
         external/glad/include
+        external/imgui/include
+        external/stb_image/include
 )
