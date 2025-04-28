@@ -16,7 +16,7 @@ Engine::Engine() : m_renderer(), m_trackball()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "LearnOpenGL", NULL, NULL);
+    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "Geometric Modelling", NULL, NULL);
     if (m_window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -38,7 +38,8 @@ Engine::Engine() : m_renderer(), m_trackball()
     }
 
     m_renderer = new Renderer();
-    m_trackball = new Trackball();
+    m_trackball = new Trackball(m_screenWidth, m_screenHeight);
+    m_interface = new Interface(m_window, m_screenWidth, m_screenHeight);
 }
 
 Engine::~Engine()
@@ -52,6 +53,8 @@ void Engine::resizeCallback(GLFWwindow* window, int width, int height)
     instance->m_screenWidth = width;
     instance->m_screenHeight = height;
     glViewport(0, 0, width, height);
+
+    instance->m_interface->resize(width, height);
 }
 
 void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -83,16 +86,22 @@ void Engine::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 void Engine::run()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDisable(GL_CULL_FACE);
 
     while (!glfwWindowShouldClose(m_window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw
-        const Eigen::Matrix4f& proj = m_trackball->getProjectionMatrix();
-        const Eigen::Matrix4f& view = m_trackball->getViewMatrix();
-        m_renderer->draw(proj, view);
-
+        const CameraParam cameraParam(
+            m_trackball->getProjectionMatrix(),
+            m_trackball->getViewMatrix(),
+            m_trackball->getPosition()
+        );
+        m_renderer->draw(cameraParam);
+        m_interface->draw();
 
         glfwPollEvents();
         glfwSwapBuffers(m_window);

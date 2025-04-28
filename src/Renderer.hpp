@@ -18,7 +18,7 @@ public:
     void initShaders();
     void initModels();
 
-    void draw(const Eigen::Matrix4f& projection, const Eigen::Matrix4f& view);
+    void draw(const CameraParam& cameraParam);
 };
 
 #endif // RENDERER_HPP

@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 #include "Object/Plane.hpp"
+#include "Object/Mesh.hpp"
 
 Renderer::Renderer()
 {
@@ -19,18 +20,21 @@ Renderer::~Renderer()
 
 void Renderer::initShaders()
 {
+    m_shaders.push_back(new Shader("./shaders/plane.vs.glsl", "./shaders/plane.fs.glsl"));
     m_shaders.push_back(new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl"));
 }
 
 void Renderer::initModels()
 {
     m_models.push_back(new Object::Plane(m_shaders[0]));
+    auto mesh = Object::Mesh::loadMeshes(m_shaders[1], "./assets/bunny.ply");
+    m_models.push_back(mesh[0]);
 }
 
-void Renderer::draw(const Eigen::Matrix4f& projection, const Eigen::Matrix4f& view)
+void Renderer::draw(const CameraParam& cameraParam)
 {
     for (auto model : m_models)
     {
-        model->draw(projection, view);
+        model->draw(cameraParam);
     }
 }

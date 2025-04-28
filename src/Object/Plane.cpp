@@ -23,29 +23,29 @@ void Object::Plane::init(int size, int segments)
     float halfSize = size * 0.5f;
         float step = size / float(segments);
 
-        vertices.clear();
-        indices.clear();
+        m_buffer.clear();
+        m_indices.clear();
 
         int index = 0;
         // Z Axis
         for (int i = 0; i <= segments; ++i) {
             float x = -halfSize + i * step;
 
-            vertices.push_back(x); vertices.push_back(0.0f); vertices.push_back(-halfSize);
-            vertices.push_back(x); vertices.push_back(0.0f); vertices.push_back(halfSize);
+            m_buffer.push_back(x); m_buffer.push_back(0.0f); m_buffer.push_back(-halfSize);
+            m_buffer.push_back(x); m_buffer.push_back(0.0f); m_buffer.push_back(halfSize);
 
-            indices.push_back(index++);
-            indices.push_back(index++);
+            m_indices.push_back(index++);
+            m_indices.push_back(index++);
         }
         // X Axis
         for (int i = 0; i <= segments; ++i) {
             float z = -halfSize + i * step;
 
-            vertices.push_back(-halfSize); vertices.push_back(0.0f); vertices.push_back(z);
-            vertices.push_back(halfSize);  vertices.push_back(0.0f); vertices.push_back(z);
+            m_buffer.push_back(-halfSize); m_buffer.push_back(0.0f); m_buffer.push_back(z);
+            m_buffer.push_back(halfSize);  m_buffer.push_back(0.0f); m_buffer.push_back(z);
 
-            indices.push_back(index++);
-            indices.push_back(index++);
+            m_indices.push_back(index++);
+            m_indices.push_back(index++);
         }
 
     glGenVertexArrays(1, &VAO);
@@ -55,23 +55,22 @@ void Object::Plane::init(int size, int segments)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_buffer.size() * sizeof(float), m_buffer.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), m_indices.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(0);
-
 }
 
-void Object::Plane::draw(Eigen::Matrix4f projection, Eigen::Matrix4f view)
+void Object::Plane::draw(const CameraParam& cameraParam)
 {
     shader->use();
-    shader->setMat4("projection", projection);
-    shader->setMat4("view", view);
+    shader->setMat4("projection", cameraParam.projection);
+    shader->setMat4("view", cameraParam.view);
     shader->setMat4("model", modelMatrix);
     glBindVertexArray(VAO);
-    glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, m_indices.size(), GL_UNSIGNED_INT, 0);
 }

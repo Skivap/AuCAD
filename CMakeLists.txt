@@ -20,6 +20,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(external/eigen)
 # GLFW
 add_subdirectory(external/glfw)
+# Assimp
+add_subdirectory(external/assimp)
 
 # ==========================================
 # Add Executable
@@ -30,10 +32,12 @@ add_executable(${PROJECT_NAME_VAR}
     src/Engine.cpp
     src/Renderer.cpp
     src/Trackball.cpp
+    src/Interface.cpp
 
     # Object
     src/Object/BaseObject.cpp
     src/Object/Plane.cpp
+    src/Object/Mesh.cpp
 
     # imgui
     external/imgui/src/imgui.cpp
@@ -54,6 +58,7 @@ add_executable(${PROJECT_NAME_VAR}
 
 target_link_libraries(${PROJECT_NAME_VAR}
     glfw
+    assimp::assimp
 )
 
 target_include_directories(${PROJECT_NAME_VAR}
@@ -63,4 +68,5 @@ target_include_directories(${PROJECT_NAME_VAR}
         external/glad/include
         external/imgui/include
         external/stb_image/include
+        external/assimp/include
 )

@@ -1,9 +1,9 @@
 #include "Trackball.hpp"
 
-Trackball::Trackball() :
+Trackball::Trackball(int width, int height) :
     m_position(0.0f, 2.0f, 2.0f), m_target(0.0f, 0.0f, 0.0f), m_up(0.0f, 1.0f, 0.0f),
     m_radius(5.0f), m_phi(0.0f), m_theta(M_PI / 2.0f),
-    m_fov(45.0f), m_aspect(1.0f), m_near(0.1f), m_far(1000.0f),
+    m_fov(45.0f), m_aspect(static_cast<float>(width) / static_cast<float>(height)), m_near(0.1f), m_far(1000.0f),
     isDragging(false), m_lastX(0.0), m_lastY(0.0)
 {
     updateProjMat(m_fov, m_aspect, m_near, m_far);
@@ -18,6 +18,11 @@ void Trackball::setPerspective(float fov, float aspect, float near, float far) {
     m_near = near;
     m_far = far;
     updateProjMat(fov, aspect, near, far);
+}
+
+void Trackball::resize(int width, int height) {
+    m_aspect = static_cast<float>(width) / static_cast<float>(height);
+    updateProjMat(m_fov, m_aspect, m_near, m_far);
 }
 
 void Trackball::rotate(float deltaPhi, float deltaTheta) {

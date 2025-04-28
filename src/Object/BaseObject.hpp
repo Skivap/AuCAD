@@ -7,12 +7,24 @@
 
 #include "../Utilities/Shader.hpp"
 
+struct CameraParam{
+    const Eigen::Matrix4f& projection;
+    const Eigen::Matrix4f& view;
+    const Eigen::Vector3f& position;
+    CameraParam(
+        const Eigen::Matrix4f& proj, const Eigen::Matrix4f& view, const Eigen::Vector3f& pos)
+        : projection(proj), view(view), position(pos)
+    {}
+};
+
 namespace Object {
     class Base {
     protected:
         GLuint VAO, VBO, EBO;
-        std::vector<float> vertices;
-        std::vector<unsigned int> indices;
+        std::vector<float> m_buffer; // Everything in 1 Big buffer data split into section
+        std::vector<unsigned int> m_indices;
+
+
         Eigen::Matrix4f modelMatrix;
         Shader* shader;
 
@@ -22,15 +34,16 @@ namespace Object {
 
     public:
         virtual void init() = 0;
-        virtual void draw(Eigen::Matrix4f projection, Eigen::Matrix4f view) = 0;
-        virtual void cleanup() = 0;
+        virtual void draw(const CameraParam& cameraParam) = 0;
 
-    public: // Model Matrix Functions Transformations
+    public:
+        // Model Matrix Functions Transformations
         void reset();
         void translate(const Eigen::Vector3f& translation);
         void rotate(float angle, const Eigen::Vector3f& axis);
         void scale(const Eigen::Vector3f& scale);
-    };
 
+    };
 }
+
 #endif // BASE_OBJECT_HPP

@@ -16,7 +16,7 @@ namespace Object
 
         void init() override;
         void init(int size, int segments);
-        void draw(Eigen::Matrix4f projection, Eigen::Matrix4f view) override;
+        void draw(const CameraParam& cameraParam) override;
     };
 }
 

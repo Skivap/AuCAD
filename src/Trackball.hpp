@@ -31,13 +31,16 @@ private:
     double m_lastY;
 
 public:
-    Trackball();
+    Trackball(int width, int height);
     ~Trackball();
 
-    const Eigen::Matrix4f& getProjectionMatrix() const { return m_projMat; };
-    const Eigen::Matrix4f& getViewMatrix() const { return m_viewMat; };
+    const Eigen::Matrix4f& getProjectionMatrix() const { return m_projMat; }
+    const Eigen::Matrix4f& getViewMatrix() const { return m_viewMat; }
+    const Eigen::Vector3f& getPosition() const { return m_position; }
 
     void setPerspective(float fov, float aspect, float near, float far);
+    void resize(int width, int height);
+
     void rotate(float deltaPhi, float deltaTheta);
     void zoom(float delta);
     void pan(double x, double y);

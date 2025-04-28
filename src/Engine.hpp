@@ -6,6 +6,7 @@
 
 #include "Renderer.hpp"
 #include "Trackball.hpp"
+#include "Interface.hpp"
 
 class Engine
 {
@@ -18,6 +19,7 @@ private:
 
     Renderer* m_renderer;
     Trackball* m_trackball;
+    Interface* m_interface;
 
 public:
     Engine();

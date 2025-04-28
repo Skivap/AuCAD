@@ -37,9 +37,9 @@ void Object::Base::rotate(float angle, const Eigen::Vector3f& axis)
 void Object::Base::scale(const Eigen::Vector3f& scale)
 {
     Eigen::Matrix4f scaling = Eigen::Matrix4f::Identity();
-    scaling(0,0) = scale.x();
-    scaling(1,1) = scale.y();
-    scaling(2,2) = scale.z();
+    scaling(0,0) *= scale.x();
+    scaling(1,1) *= scale.y();
+    scaling(2,2) *= scale.z();
 
     modelMatrix = modelMatrix * scaling;
 }
