@@ -1,6 +1,7 @@
 #include "Trackball.hpp"
 
 Trackball::Trackball(int width, int height) :
+    m_width(width), m_height(height),
     m_position(0.0f, 2.0f, 2.0f), m_target(0.0f, 0.0f, 0.0f), m_up(0.0f, 1.0f, 0.0f),
     m_radius(5.0f), m_phi(0.0f), m_theta(M_PI / 2.0f),
     m_fov(45.0f), m_aspect(static_cast<float>(width) / static_cast<float>(height)), m_near(0.1f), m_far(1000.0f),
@@ -21,6 +22,8 @@ void Trackball::setPerspective(float fov, float aspect, float near, float far) {
 }
 
 void Trackball::resize(int width, int height) {
+    m_width = width;
+    m_height = height;
     m_aspect = static_cast<float>(width) / static_cast<float>(height);
     updateProjMat(m_fov, m_aspect, m_near, m_far);
 }
@@ -90,6 +93,19 @@ void Trackball::endDrag(double x, double y) {
     isDragging = false;
 }
 
+Eigen::Vector3f Trackball::unProject(const Eigen::Vector3f& screenCoord) {
+    Eigen::Vector4f ndc(
+        (2.0f * screenCoord.x()) / static_cast<float>(m_width) - 1.0f,
+        1.0f - (2.0f * screenCoord.y()) / static_cast<float>(m_height),
+        2.0f * screenCoord.z() - 1.0f,
+        1.0
+    );
+
+    Eigen::Matrix4f invProjView = (m_projMat * m_viewMat).inverse();
+    Eigen::Vector4f homogeneous = invProjView * ndc;
+    return Eigen::Vector3f(homogeneous.x(), homogeneous.y(), homogeneous.z()) / homogeneous.w();
+}
+
 void Trackball::updateCameraPosition() {
     float x = m_radius * sin(m_theta) * cos(m_phi);
     float y = m_radius * cos(m_theta);
@@ -99,8 +115,7 @@ void Trackball::updateCameraPosition() {
     updateViewMat(m_position, m_target, m_up);
 }
 
-void Trackball::updateViewMat(const Eigen::Vector3f& eye, const Eigen::Vector3f& org, const Eigen::Vector3f& up)
-{
+void Trackball::updateViewMat(const Eigen::Vector3f& eye, const Eigen::Vector3f& org, const Eigen::Vector3f& up) {
     Eigen::Vector3f zaxis = (eye - org).normalized();
     Eigen::Vector3f xaxis = up.cross(zaxis).normalized();
     Eigen::Vector3f yaxis = zaxis.cross(xaxis);
@@ -112,8 +127,7 @@ void Trackball::updateViewMat(const Eigen::Vector3f& eye, const Eigen::Vector3f&
         0, 0, 0, 1;
 }
 
-void Trackball::updateProjMat(float fov, float aspect, float near, float far)
-{
+void Trackball::updateProjMat(float fov, float aspect, float near, float far) {
     float tanHalfFovy = tan(fov / 2.0f);
 
     m_projMat = Eigen::Matrix4f::Zero();

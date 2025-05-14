@@ -9,6 +9,9 @@ private:
     Eigen::Matrix4f m_projMat;
     Eigen::Matrix4f m_viewMat;
 
+    // Screen Height * Width
+    int m_width, m_height;
+
     // View Matrix
     Eigen::Vector3f m_position;
     Eigen::Vector3f m_target;
@@ -52,6 +55,10 @@ public:
     void startDrag(double x, double y);
     void drag(double x, double y);
     void endDrag(double x, double y);
+
+public:
+    // Input is 3 element from OpenGL coordinate {x, y, depth} [NO FLIPPING !!]
+    Eigen::Vector3f unProject(const Eigen::Vector3f& screenCoord);
 
 
 private:

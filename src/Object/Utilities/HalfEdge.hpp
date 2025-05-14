@@ -10,34 +10,34 @@ class HalfEdge;
 
 class Vertex {
 public:
-    HalfEdge* edge;
+    HalfEdge* he;
 
     Eigen::Vector3f pos;
     Eigen::Vector3f normal;
 public:
     Vertex() :
-        edge(nullptr) {}
+        he(nullptr) {}
     ~Vertex() {}
 };
 
 class Edge {
 public:
-    HalfEdge* edge;
+    HalfEdge* he;
 
 public:
     Edge() :
-        edge(nullptr) {}
+        he(nullptr) {}
     ~Edge() {}
 
 };
 
 class Triangle {
 public:
-    HalfEdge* edge;
+    HalfEdge* he;
 
 public:
     Triangle() :
-        edge(nullptr) {}
+        he(nullptr) {}
     ~Triangle() {}
 };
 

@@ -36,7 +36,7 @@ add_executable(${PROJECT_NAME_VAR}
 
     # Object
     src/Object/BaseObject.cpp
-    src/Object/Plane.cpp
+    src/Object/Wireframe.cpp
     src/Object/Mesh.cpp
 
     # imgui

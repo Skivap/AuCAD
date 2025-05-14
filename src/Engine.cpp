@@ -16,7 +16,7 @@ Engine::Engine() : m_renderer(), m_trackball()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "Geometric Modelling", NULL, NULL);
+    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "Geometric Modeling", NULL, NULL);
     if (m_window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -59,17 +59,21 @@ void Engine::resizeCallback(GLFWwindow* window, int width, int height)
 
 void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
         instance->m_trackball->startDrag(xpos, ypos);
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
         instance->m_trackball->endDrag(xpos, ypos);
+    }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        float depth;
+        glReadPixels(xpos, instance->m_screenHeight - ypos, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+        Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), depth);
+        Eigen::Vector3f worldCoord = instance->m_trackball->unProject(screenCoord);
     }
 }
 

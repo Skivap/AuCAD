@@ -2,15 +2,22 @@
 #define RENDERER_HPP
 
 #include <Eigen/Dense>
-#include <vector>
 
 #include "Object/BaseObject.hpp"
+#include "Object/Wireframe.hpp"
+#include "Object/Mesh.hpp"
+
 #include "Utilities/Shader.hpp"
 
 class Renderer {
 private:
-    std::vector<Object::Base*> m_models;
-    std::vector<Shader*> m_shaders;
+    Object::Wireframe* m_plane;
+    Object::Mesh* m_mesh;
+
+    Shader* m_planeShader;
+    Shader* m_meshShader;
+
+    int m_screenHeight, m_screenWidth;
 public:
     Renderer();
     ~Renderer();
@@ -19,6 +26,8 @@ public:
     void initModels();
 
     void draw(const CameraParam& cameraParam);
+
+public:
 };
 
 #endif // RENDERER_HPP

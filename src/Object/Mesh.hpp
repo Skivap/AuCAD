@@ -3,13 +3,15 @@
 
 #include "Utilities/HalfEdge.hpp"
 #include "BaseObject.hpp"
+#include "Wireframe.hpp"
 
 namespace Object {
     class Mesh : public Base {
     private:
+        // Data Structure for Half Edges
         std::vector<HalfEdge> m_halfEdges;
         std::vector<Triangle> m_triangles;
-        std::vector<Edge> m_edges;
+        // std::vector<Edge> m_edges;
         std::vector<Vertex> m_vertices;
 
     public:
@@ -22,6 +24,7 @@ namespace Object {
         void init() override;
         void draw(const CameraParam& cameraParam) override;
 
+        Wireframe* createWireframe(Shader* wireframeShader);
         static std::vector<Mesh*> loadMeshes(Shader* shader, const std::string& filePath);
     };
 }

@@ -1,6 +1,4 @@
 #include "Renderer.hpp"
-#include "Object/Plane.hpp"
-#include "Object/Mesh.hpp"
 
 Renderer::Renderer()
 {
@@ -13,28 +11,24 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-    for (auto model : m_models) {
-        delete model;
-    }
+    delete m_mesh;
+    delete m_plane;
 }
 
 void Renderer::initShaders()
 {
-    m_shaders.push_back(new Shader("./shaders/plane.vs.glsl", "./shaders/plane.fs.glsl"));
-    m_shaders.push_back(new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl"));
+    m_planeShader = new Shader("./shaders/plane.vs.glsl", "./shaders/plane.fs.glsl");
+    m_meshShader = new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl");
 }
 
 void Renderer::initModels()
 {
-    m_models.push_back(new Object::Plane(m_shaders[0]));
-    auto mesh = Object::Mesh::loadMeshes(m_shaders[1], "./assets/bunny.ply");
-    m_models.push_back(mesh[0]);
+    m_plane = new Object::Wireframe(m_planeShader);
+    m_mesh = Object::Mesh::loadMeshes(m_meshShader, "./assets/bunny.ply")[0];
 }
 
 void Renderer::draw(const CameraParam& cameraParam)
 {
-    for (auto model : m_models)
-    {
-        model->draw(cameraParam);
-    }
+    m_plane->draw(cameraParam);
+    m_mesh->draw(cameraParam);
 }
