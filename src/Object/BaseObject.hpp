@@ -21,9 +21,7 @@ namespace Object {
     class Base {
     protected:
         GLuint VAO, VBO, EBO;
-        std::vector<float> m_buffer; // Everything in 1 Big buffer data split into section
-        std::vector<unsigned int> m_indices;
-
+        unsigned int bufferSize, indicesSize;
 
         Eigen::Matrix4f modelMatrix;
         Shader* shader;
@@ -33,7 +31,7 @@ namespace Object {
         virtual ~Base();
 
     public:
-        virtual void init() = 0;
+        virtual void init(std::vector<float>& buffer, std::vector<unsigned int>& indices) = 0;
         virtual void draw(const CameraParam& cameraParam) = 0;
 
     public:

@@ -17,14 +17,14 @@ Renderer::~Renderer()
 
 void Renderer::initShaders()
 {
-    m_planeShader = new Shader("./shaders/plane.vs.glsl", "./shaders/plane.fs.glsl");
+    m_wireframe = new Shader("./shaders/default.vs.glsl", "./shaders/default.fs.glsl");
     m_meshShader = new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl");
 }
 
 void Renderer::initModels()
 {
-    m_plane = new Object::Wireframe(m_planeShader);
-    m_mesh = Object::Mesh::loadMeshes(m_meshShader, "./assets/bunny.ply")[0];
+    m_plane = new Object::Wireframe(m_wireframe);
+    m_mesh = Object::Mesh::loadMeshes(m_meshShader, m_wireframe, "./assets/bunny.ply")[0];
 }
 
 void Renderer::draw(const CameraParam& cameraParam)

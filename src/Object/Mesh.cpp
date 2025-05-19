@@ -4,168 +4,121 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include <set>
-#include <map>
-#include <algorithm>
+Object::Mesh::Mesh(Shader* shader, Shader* wireframe_shader,
+                   const std::vector<Eigen::Vector3f>& vertices,
+                   const std::vector<Eigen::Vector3f>& normals,
+                   const std::vector<Eigen::Vector3i>& indices)
+    : Base(shader), m_baseColor(1.0f, 0.5f, 0.5f), m_drawWireframe(false), m_drawPointCloud(false) {
 
-Object::Mesh::Mesh(Shader* shader, const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
-                   const std::vector<Eigen::Vector3i>& indices) : Base(shader) {
-    // Check =================================================
-    if(vertices.size() != normals.size()) {
-        std::cout << "Vertices and Normals doesn't match \n";
+    if (vertices.size() != normals.size()) {
+        std::cout << "Vertices and Normals doesn't match\n";
     }
 
-    // Setup HalfEdge ========================================
-    m_vertices.resize(vertices.size());
-    m_triangles.resize(indices.size());
-    m_halfEdges.resize(indices.size() * 3);
+    std::vector<float> buffer;
+    std::vector<float> bufferPositions, bufferNormals, bufferColors;
 
-    for(int i = 0; i < vertices.size(); i++) {
-        m_vertices[i].pos = vertices[i];
-        m_vertices[i].normal = normals[i];
-    }
+    for (const auto& tri : indices) {
+        for (int j = 0; j < 3; ++j) {
+            int idx = tri[j];
+            const auto& v = vertices[idx];
+            const auto& n = normals[idx];
 
-    auto edge_key = [](int a, int b) {
-        return std::make_pair(std::min(a, b), std::max(a, b));
-    };
+            bufferPositions.push_back(v.x());
+            bufferPositions.push_back(v.y());
+            bufferPositions.push_back(v.z());
 
-    std::map<std::pair<int, int>, HalfEdge*> edgeMap;
+            bufferNormals.push_back(n.x());
+            bufferNormals.push_back(n.y());
+            bufferNormals.push_back(n.z());
 
-    for (int t = 0; t < indices.size(); ++t) {
-        const auto& tri = indices[t];
-        int i0 = tri[0], i1 = tri[1], i2 = tri[2];
-
-        Triangle& triangle = m_triangles[t];
-
-        HalfEdge* he0 = &m_halfEdges[t * 3 + 0];
-        HalfEdge* he1 = &m_halfEdges[t * 3 + 1];
-        HalfEdge* he2 = &m_halfEdges[t * 3 + 2];
-
-        // Assign next/prev
-        he0->next = he1; he1->next = he2; he2->next = he0;
-        he0->prev = he2; he1->prev = he0; he2->prev = he1;
-
-        // Assign vertices
-        he0->vertex = &m_vertices[i1]; // from i0 to i1 → store i1 at the end of edge
-        he1->vertex = &m_vertices[i2];
-        he2->vertex = &m_vertices[i0];
-
-        // Assign face
-        he0->face = &triangle;
-        he1->face = &triangle;
-        he2->face = &triangle;
-
-        // Assign triangle pointer
-        triangle.he = he0;
-
-        // Save halfedges to edgeMap to set twin
-        auto k0 = edge_key(i0, i1);
-        auto k1 = edge_key(i1, i2);
-        auto k2 = edge_key(i2, i0);
-
-        if (edgeMap.count(k0)) {
-            HalfEdge* twin = edgeMap[k0];
-            he0->twin = twin;
-            twin->twin = he0;
-        } else edgeMap[k0] = he0;
-
-        if (edgeMap.count(k1)) {
-            HalfEdge* twin = edgeMap[k1];
-            he1->twin = twin;
-            twin->twin = he1;
-        } else edgeMap[k1] = he1;
-
-        if (edgeMap.count(k2)) {
-            HalfEdge* twin = edgeMap[k2];
-            he2->twin = twin;
-            twin->twin = he2;
-        } else edgeMap[k2] = he2;
-    }
-
-    for (auto& he : m_halfEdges) {
-        if (he.vertex && he.vertex->he == nullptr) {
-            he.vertex->he = &he;
+            bufferColors.push_back(m_baseColor.x());
+            bufferColors.push_back(m_baseColor.y());
+            bufferColors.push_back(m_baseColor.z());
         }
     }
 
-    // Setup Buffer Object ===================================
-    for(int i = 0; i < vertices.size(); i++) {
-        m_buffer.push_back(vertices[i].x());
-        m_buffer.push_back(vertices[i].y());
-        m_buffer.push_back(vertices[i].z());
+    buffer.clear();
+    buffer.insert(buffer.end(), bufferPositions.begin(), bufferPositions.end());
+    buffer.insert(buffer.end(), bufferNormals.begin(), bufferNormals.end());
+    buffer.insert(buffer.end(), bufferColors.begin(), bufferColors.end());
 
-        m_buffer.push_back(normals[i].x());
-        m_buffer.push_back(normals[i].y());
-        m_buffer.push_back(normals[i].z());
-    }
+    // INDICES ONLY FOR WIREFRAME SETUP!!!
+    std::vector<unsigned int> bufferIndices;
     for(int i = 0; i < indices.size(); i++) {
-        m_indices.push_back(indices[i].x());
-        m_indices.push_back(indices[i].y());
-        m_indices.push_back(indices[i].z());
+        bufferIndices.push_back(indices[i].x());
+        bufferIndices.push_back(indices[i].y());
+        bufferIndices.push_back(indices[i].z());
     }
-    init();
+
+    bufferSize = buffer.size();
+    indicesSize = 0;
+
+    // Setup the data structure
+    meshData = new MeshData(vertices, normals, indices, VBO);
+
+    init(buffer, bufferIndices);
+    initWireframe(wireframe_shader);
+    initPointCloud(shader);
 }
 
-Object::Mesh::~Mesh() {
+Object::Mesh::~Mesh() {}
 
-}
-
-void Object::Mesh::init() {
+void Object::Mesh::init(std::vector<float>& buffer, std::vector<unsigned int>& indices) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_buffer.size() * sizeof(float), m_buffer.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), buffer.data(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), m_indices.data(), GL_STATIC_DRAW);
+    size_t vertexCount = buffer.size() / 9;
+    size_t verticesOffset = 0;
+    size_t normalsOffset = vertexCount * 3 * sizeof(float);
+    size_t colorsOffset  = vertexCount * 6 * sizeof(float);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)verticesOffset);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)normalsOffset);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)colorsOffset);
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 }
 
-void Object::Mesh::draw(const CameraParam& cameraParam) {
-    shader->use();
-    shader->setMat4("projection", cameraParam.projection);
-    shader->setMat4("view", cameraParam.view);
-    shader->setVec3("camPos", cameraParam.position);
-    shader->setMat4("model", modelMatrix);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
-}
-
-Object::Wireframe* Object::Mesh::createWireframe(Shader* wireframeShader) {
+void Object::Mesh::initWireframe(Shader* wireframeShader) {
     std::vector<Eigen::Vector3f> pos;
     std::vector<Eigen::Vector2i> indices;
 
-    for(const Vertex& vertex: m_vertices) {
+    const std::vector<Vertex>& vertices = meshData->getVertices();
+    const std::vector<Edge>& edges = meshData->getEdges();
+
+    for (const Vertex& vertex : vertices) {
         pos.push_back(vertex.pos);
     }
 
-    std::set<std::pair<unsigned int, unsigned int>> edgeSet;
-    auto edge_key = [](unsigned int a, unsigned int b) {
-        return std::make_pair(std::min(a, b), std::max(a, b));
-    };
-
-    for(int i = 1; i < m_indices.size(); i++) {
-        auto k = edge_key(m_indices[i], m_indices[i-1]);
-        if(!edgeSet.count(k)) {
-            edgeSet.insert(k);
-            indices.push_back(Eigen::Vector2i(m_indices[i], m_indices[i-1]));
-        }
+    for (Edge e: edges) {
+        HalfEdge* he = e.he;
+        indices.push_back(Eigen::Vector2i(
+            he->vertex->index,
+            he->prev->vertex->index
+        ));
     }
 
-    Object::Wireframe* wireframe = new Wireframe(wireframeShader, pos, indices);
-    return wireframe;
+    m_wireframe = new Wireframe(wireframeShader, pos, indices);
 }
 
-std::vector<Object::Mesh*> Object::Mesh::loadMeshes(Shader* shader, const std::string& filePath){
+void Object::Mesh::initPointCloud(Shader* shader) {
+    const std::vector<Vertex>& vertices = meshData->getVertices();
+    std::vector<Eigen::Vector3f> pos;
+    for (const Vertex& vertex : vertices) {
+        pos.push_back(vertex.pos);
+    }
+    m_pointCloud = new PointCloud(shader, pos);
+}
+
+std::vector<Object::Mesh*> Object::Mesh::loadMeshes(Shader* shader, Shader* wireframe_shader, const std::string& filePath){
     std::vector<Object::Mesh*> meshes;
 
     Assimp::Importer importer;
@@ -180,7 +133,7 @@ std::vector<Object::Mesh*> Object::Mesh::loadMeshes(Shader* shader, const std::s
 		std::terminate();
 	}
 
-	std::cout << "Load 3D models " << filePath << '\n';
+	std::cout << "Loading 3D model " << filePath << '\n';
 
 	for(int i = 0; i < scene->mNumMeshes; i++) {
 	    std::vector<Eigen::Vector3f> vertices;
@@ -205,8 +158,22 @@ std::vector<Object::Mesh*> Object::Mesh::loadMeshes(Shader* shader, const std::s
 		}
 
 		// Push to list of meshes
-		meshes.push_back(new Object::Mesh(shader, vertices, normals, indices));
+		meshes.push_back(new Object::Mesh(shader, wireframe_shader, vertices, normals, indices));
 	}
 
     return meshes;
+}
+
+void Object::Mesh::draw(const CameraParam& cameraParam) {
+    shader->use();
+    shader->setMat4("projection", cameraParam.projection);
+    shader->setMat4("view", cameraParam.view);
+    shader->setVec3("camPos", cameraParam.position);
+    shader->setMat4("model", modelMatrix);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, bufferSize / 9);
+
+    m_wireframe->draw(cameraParam);
+    m_pointCloud->draw(cameraParam);
 }

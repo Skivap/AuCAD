@@ -12,9 +12,10 @@
 class Renderer {
 private:
     Object::Wireframe* m_plane;
+
     Object::Mesh* m_mesh;
 
-    Shader* m_planeShader;
+    Shader* m_wireframe;
     Shader* m_meshShader;
 
     int m_screenHeight, m_screenWidth;

@@ -1,31 +1,36 @@
 #ifndef OBJECT_MESH_HPP
 #define OBJECT_MESH_HPP
 
-#include "Utilities/HalfEdge.hpp"
+#include "Utilities/MeshData.hpp"
 #include "BaseObject.hpp"
 #include "Wireframe.hpp"
+#include "PointCloud.hpp"
 
 namespace Object {
     class Mesh : public Base {
     private:
-        // Data Structure for Half Edges
-        std::vector<HalfEdge> m_halfEdges;
-        std::vector<Triangle> m_triangles;
-        // std::vector<Edge> m_edges;
-        std::vector<Vertex> m_vertices;
+        MeshData* meshData;
+        Eigen::Vector3f m_baseColor;
+
+        PointCloud* m_pointCloud;
+        Wireframe* m_wireframe;
+
+        bool m_drawWireframe;
+        bool m_drawPointCloud;
 
     public:
-        Mesh(Shader* shader,
+        Mesh(Shader* shader, Shader* wireframe_shader,
             const std::vector<Eigen::Vector3f>& vertices,
             const std::vector<Eigen::Vector3f>& normals,
             const std::vector<Eigen::Vector3i>& indices);
         ~Mesh();
 
-        void init() override;
+        void init(std::vector<float>& buffer, std::vector<unsigned int>& indices) override;
         void draw(const CameraParam& cameraParam) override;
 
-        Wireframe* createWireframe(Shader* wireframeShader);
-        static std::vector<Mesh*> loadMeshes(Shader* shader, const std::string& filePath);
+        void initWireframe(Shader* shader);
+        void initPointCloud(Shader* shader);
+        static std::vector<Mesh*> loadMeshes(Shader* shader, Shader* wireframe_shader, const std::string& filePath);
     };
 }
 

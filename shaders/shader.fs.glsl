@@ -17,7 +17,7 @@ out vec4 FragColor;
 void main()
 {
     vec3 lightPos = vec3(1.0, 0.0, 0.0);
-    vec3 color = vec3(0.5, 0.5, 1.0);
+    vec3 color = vertexData.color;
 
     // Ambient light
     vec3 ambient = 0.05 * color;

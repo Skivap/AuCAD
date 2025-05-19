@@ -38,6 +38,9 @@ add_executable(${PROJECT_NAME_VAR}
     src/Object/BaseObject.cpp
     src/Object/Wireframe.cpp
     src/Object/Mesh.cpp
+    src/Object/PointCloud.cpp
+    # Additional Mesh Utilities
+    src/Object/Utilities/MeshData.cpp
 
     # imgui
     external/imgui/src/imgui.cpp

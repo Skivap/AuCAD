@@ -14,6 +14,10 @@ public:
 
     void resize(int width, int height);
     void draw();
+
+private:
+    bool m_wireframe;
+public:
 };
 
 #endif // INTERFACE_HPP

@@ -93,6 +93,8 @@ void Engine::run()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDisable(GL_CULL_FACE);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(m_window))
     {
