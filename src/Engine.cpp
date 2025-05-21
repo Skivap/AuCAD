@@ -55,6 +55,7 @@ void Engine::resizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 
     instance->m_interface->resize(width, height);
+    instance->m_trackball->resize(width, height);
 }
 
 void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -74,6 +75,9 @@ void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int
         glReadPixels(xpos, instance->m_screenHeight - ypos, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
         Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), depth);
         Eigen::Vector3f worldCoord = instance->m_trackball->unProject(screenCoord);
+
+        MeshData* meshData = instance->m_renderer->getMeshData();
+        meshData->selectTriangle(instance->m_trackball->getPosition(), worldCoord);
     }
 }
 

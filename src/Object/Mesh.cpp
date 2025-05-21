@@ -8,7 +8,7 @@ Object::Mesh::Mesh(Shader* shader, Shader* wireframe_shader,
                    const std::vector<Eigen::Vector3f>& vertices,
                    const std::vector<Eigen::Vector3f>& normals,
                    const std::vector<Eigen::Vector3i>& indices)
-    : Base(shader), m_baseColor(1.0f, 0.5f, 0.5f), m_drawWireframe(false), m_drawPointCloud(false) {
+    : Base(shader), m_drawWireframe(false), m_drawPointCloud(false) {
 
     if (vertices.size() != normals.size()) {
         std::cout << "Vertices and Normals doesn't match\n";
@@ -31,9 +31,9 @@ Object::Mesh::Mesh(Shader* shader, Shader* wireframe_shader,
             bufferNormals.push_back(n.y());
             bufferNormals.push_back(n.z());
 
-            bufferColors.push_back(m_baseColor.x());
-            bufferColors.push_back(m_baseColor.y());
-            bufferColors.push_back(m_baseColor.z());
+            bufferColors.push_back(0.0f);
+            bufferColors.push_back(0.0f);
+            bufferColors.push_back(0.0f);
         }
     }
 
@@ -54,11 +54,13 @@ Object::Mesh::Mesh(Shader* shader, Shader* wireframe_shader,
     indicesSize = 0;
 
     // Setup the data structure
-    meshData = new MeshData(vertices, normals, indices, VBO);
+    meshData = new MeshData(vertices, normals, indices);
 
     init(buffer, bufferIndices);
     initWireframe(wireframe_shader);
     initPointCloud(shader);
+
+    meshData->assignVBO(VBO, m_wireframe->getVBO());
 }
 
 Object::Mesh::~Mesh() {}

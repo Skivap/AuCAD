@@ -1,9 +1,9 @@
 #include "PointCloud.hpp"
 
 
-Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f>& vertices) : Base(shader)
+Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f>& vertices)
+: Base(shader), m_selectedColor(1.0f, 0.0f, 0.0f), m_baseColor(0.0f, 0.0f, 0.0f)
 {
-    m_baseColor = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
     m_offsets = vertices;
 
     const int rings = 16;
@@ -37,9 +37,9 @@ Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f
             buffer.push_back(ny);
             buffer.push_back(nz);
             // Color
-            buffer.push_back(m_baseColor.x());
-            buffer.push_back(m_baseColor.y());
-            buffer.push_back(m_baseColor.z());
+            buffer.push_back(0.0f);
+            buffer.push_back(0.0f);
+            buffer.push_back(0.0f);
         }
     }
 

@@ -41,6 +41,7 @@ namespace Object {
         void rotate(float angle, const Eigen::Vector3f& axis);
         void scale(const Eigen::Vector3f& scale);
 
+        GLuint getVBO() { return VBO; }
     };
 }
 

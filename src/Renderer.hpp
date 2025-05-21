@@ -28,6 +28,8 @@ public:
 
     void draw(const CameraParam& cameraParam);
 
+    MeshData* getMeshData() { return m_mesh->getMeshData(); }
+
 public:
 };
 

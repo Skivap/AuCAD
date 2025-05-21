@@ -10,7 +10,6 @@ namespace Object {
     class Mesh : public Base {
     private:
         MeshData* meshData;
-        Eigen::Vector3f m_baseColor;
 
         PointCloud* m_pointCloud;
         Wireframe* m_wireframe;
@@ -31,6 +30,8 @@ namespace Object {
         void initWireframe(Shader* shader);
         void initPointCloud(Shader* shader);
         static std::vector<Mesh*> loadMeshes(Shader* shader, Shader* wireframe_shader, const std::string& filePath);
+
+        MeshData* getMeshData() { return meshData; };
     };
 }
 

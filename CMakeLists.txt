@@ -41,6 +41,7 @@ add_executable(${PROJECT_NAME_VAR}
     src/Object/PointCloud.cpp
     # Additional Mesh Utilities
     src/Object/Utilities/MeshData.cpp
+    src/Object/Utilities/MeshSelection.cpp
 
     # imgui
     external/imgui/src/imgui.cpp

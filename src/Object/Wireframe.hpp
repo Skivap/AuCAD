@@ -8,7 +8,6 @@ namespace Object
     class Wireframe : public Base
     {
     private:
-        Eigen::Vector3f m_baseColor;
 
     public:
         Wireframe(Shader* shader, int size = 10, int segments = 10); // Plane Option

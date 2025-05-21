@@ -3,7 +3,8 @@
 #include <map>
 
 MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
-                   const std::vector<Eigen::Vector3i>& indices, GLuint VBO) : VBO(VBO) {
+                   const std::vector<Eigen::Vector3i>& indices)
+: m_meshColor(0.8f, 0.2f, 0.2f), m_wireframeColor(1.0f, 1.0f, 1.0f), m_pointsColor(0.1f, 0.1f, 0.9f){
     m_vertices.resize(vertices.size());
     m_triangles.resize(indices.size());
     m_halfEdges.resize(indices.size() * 3);
@@ -93,4 +94,15 @@ MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vect
         he->edge = &edge;
         he->twin->edge = &edge;
     }
+
+    // Setup Selection =====================================
+    m_selectedEdges.resize(m_edges.size(), false);
+    m_selectedVertices.resize(m_vertices.size(), false);
+    m_selectedTriangles.resize(m_triangles.size(), false);
+}
+
+void MeshData::assignVBO(GLuint VBOmesh, GLuint VBOwireframe) {
+    m_VBOmesh = VBOmesh;
+    m_VBOwireframe = VBOwireframe;
+    resetSelection();
 }
