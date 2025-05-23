@@ -9,6 +9,12 @@ class Edge;
 class Triangle;
 class HalfEdge;
 
+enum MeshVisMode{
+    None        = 0x0,
+    Normals     = 0x1,
+    Weight      = 0x2
+};
+
 // MeshData ======================================================================================
 class MeshData{
 private:
@@ -20,6 +26,7 @@ private:
     GLuint m_VBOmesh, m_VBOwireframe;
 
 public:
+    // Constructor =============================================================================================================
     // The VBO assignment is assume that we store the vertices without EBO, and the VAO has the same order with indices
     // Yes, there will be a duplicate vertices inside VBO
     MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
@@ -32,6 +39,7 @@ public:
     const std::vector<Edge>& getEdges() { return m_edges; }
     const std::vector<Vertex>& getVertices() { return m_vertices; }
 
+    // Selection =============================================================================================================
 private:
     Eigen::Vector3f m_meshColor, m_wireframeColor, m_pointsColor;
     Eigen::Vector3f m_meshSelectColor, m_wireframeSelectColor, m_pointsSelectColor;
@@ -42,18 +50,40 @@ private:
 
 public:
     void resetSelection();
-    void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& point);
+    void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
+    void selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
+    void selectEdges();
+
+    const std::vector<bool>& getSelectedVertices(){ return m_selectedVertices; }
+
+    static bool rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,
+                                     Eigen::Vector3f& intersectPoint, float& t);
+
+public:
+    // Processor Implementation =============================================================================================================
+    void computeAll();
+    void computeInteriorAngle();
+    void computeCotangentWeight();
+    void computeVertexWeight();
+
+public:
+    // Visualization Implementation =============================================================================================================
+    void refreshTriangleColor(MeshVisMode mode, float scalar = 0.08f);
+    void refreshEdgeColor();
+
+    void changeTriangleColor(int idx, Eigen::Vector3f color);
 };
 
 // Vertex Data ======================================================================================
 class Vertex {
 public:
     unsigned int index;
+    double weight;
 
     HalfEdge* he;
 
-    Eigen::Vector3f pos;
-    Eigen::Vector3f normal;
+    Eigen::Vector3d pos;
+    Eigen::Vector3d normal;
 public:
     Vertex() :
         he(nullptr) {}
@@ -64,6 +94,7 @@ public:
 class Edge {
 public:
     unsigned int index;
+    double weight;
 
     HalfEdge* he;
 
@@ -90,6 +121,8 @@ public:
 // Half Edge Data ======================================================================================
 class HalfEdge {
 public:
+    double angle;
+
     HalfEdge* next;
     HalfEdge* prev;
     HalfEdge* twin;
@@ -103,13 +136,6 @@ public:
         next(nullptr), prev(nullptr), twin(nullptr),
         vertex(nullptr), edge(nullptr), face(nullptr) {}
     ~HalfEdge() {}
-
-    inline void assign(HalfEdge* n, HalfEdge* p, HalfEdge* t) {
-        next = n, prev = p, twin = t;
-    }
-    inline void assign(Vertex* v, Edge* e, Triangle* t) {
-        vertex = v, edge = e, face = t;
-    }
 };
 
 #endif // MESH_DATA_HPP

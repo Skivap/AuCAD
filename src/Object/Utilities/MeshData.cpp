@@ -11,8 +11,8 @@ MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vect
 
     // Setup Vertices ========================================
     for(int i = 0; i < vertices.size(); i++) {
-        m_vertices[i].pos = vertices[i];
-        m_vertices[i].normal = normals[i];
+        m_vertices[i].pos = vertices[i].cast<double>();
+        m_vertices[i].normal = normals[i].cast<double>();
         m_vertices[i].index = i;
     }
 
@@ -91,8 +91,8 @@ MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vect
         edge.index = m_edges.size();
         m_edges.push_back(edge);
 
-        he->edge = &edge;
-        he->twin->edge = &edge;
+        he->edge = &m_edges[m_edges.size() - 1];
+        he->twin->edge = he->edge;
     }
 
     // Setup Selection =====================================

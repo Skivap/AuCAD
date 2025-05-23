@@ -53,8 +53,9 @@ Object::Mesh::Mesh(Shader* shader, Shader* wireframe_shader,
     bufferSize = buffer.size();
     indicesSize = 0;
 
-    // Setup the data structure
+    // Setup the data structuxre
     meshData = new MeshData(vertices, normals, indices);
+    meshData->computeAll(); // TODO
 
     init(buffer, bufferIndices);
     initWireframe(wireframe_shader);
@@ -97,7 +98,7 @@ void Object::Mesh::initWireframe(Shader* wireframeShader) {
     const std::vector<Edge>& edges = meshData->getEdges();
 
     for (const Vertex& vertex : vertices) {
-        pos.push_back(vertex.pos);
+        pos.push_back(vertex.pos.cast<float>());
     }
 
     for (Edge e: edges) {
@@ -115,9 +116,9 @@ void Object::Mesh::initPointCloud(Shader* shader) {
     const std::vector<Vertex>& vertices = meshData->getVertices();
     std::vector<Eigen::Vector3f> pos;
     for (const Vertex& vertex : vertices) {
-        pos.push_back(vertex.pos);
+        pos.push_back(vertex.pos.cast<float>());
     }
-    m_pointCloud = new PointCloud(shader, pos);
+    m_pointCloud = new PointCloud(shader, meshData, pos);
 }
 
 std::vector<Object::Mesh*> Object::Mesh::loadMeshes(Shader* shader, Shader* wireframe_shader, const std::string& filePath){

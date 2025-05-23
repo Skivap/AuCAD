@@ -27,7 +27,7 @@ Engine::Engine() : m_renderer(), m_trackball()
     // Callbacks
     glfwMakeContextCurrent(m_window);
     glfwSetScrollCallback(m_window, scrollCallback);
-    glfwSetFramebufferSizeCallback(m_window, resizeCallback);
+    glfwSetWindowSizeCallback(m_window, resizeCallback);
     glfwSetCursorPosCallback(m_window, cursorPosCallback);
     glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
 
@@ -71,13 +71,27 @@ void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int
         instance->m_trackball->endDrag(xpos, ypos);
     }
     else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        float depth;
-        glReadPixels(xpos, instance->m_screenHeight - ypos, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-        Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), depth);
+        // float depth;
+        // glReadPixels(xpos, instance->m_screenHeight - ypos, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+        Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), 0);
         Eigen::Vector3f worldCoord = instance->m_trackball->unProject(screenCoord);
 
+        Interface::SelectionMode mode = instance->m_interface->getSelectionMode();
         MeshData* meshData = instance->m_renderer->getMeshData();
-        meshData->selectTriangle(instance->m_trackball->getPosition(), worldCoord);
+
+        switch(mode) {
+            case Interface::SelectionMode::Triangle:
+                meshData->selectTriangle(instance->m_trackball->getPosition(), worldCoord);
+                break;
+
+            case Interface::SelectionMode::Vertex:
+                meshData->selectVertex(instance->m_trackball->getPosition(), worldCoord);
+                break;
+
+            default:
+                break;
+        }
+
     }
 }
 
@@ -93,16 +107,28 @@ void Engine::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void Engine::run()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(m_window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Update
+        MeshData* meshData = m_renderer->getMeshData();
+        if(m_interface->getVisualizeMode() == 1) {
+            meshData->refreshTriangleColor(MeshVisMode::None);
+        }
+        else if(m_interface->getVisualizeMode() == 2) {
+            meshData->refreshTriangleColor(MeshVisMode::Normals);
+        }
+        else if(m_interface->getVisualizeMode() == 3) {
+            meshData->refreshTriangleColor(MeshVisMode::Weight);
+        }
 
         // Draw
         const CameraParam cameraParam(
@@ -113,8 +139,8 @@ void Engine::run()
         m_renderer->draw(cameraParam);
         m_interface->draw();
 
-        glfwPollEvents();
         glfwSwapBuffers(m_window);
+        glfwPollEvents();
     }
 
     glfwTerminate();

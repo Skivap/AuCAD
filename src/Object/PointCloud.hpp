@@ -11,10 +11,10 @@ namespace Object
     private:
         std::vector<Eigen::Vector3f> m_offsets;
         Eigen::Vector3f m_selectedColor, m_baseColor;
-        MeshData* meshData;
+        MeshData* m_meshData;
 
     public:
-        PointCloud(Shader* shader, const std::vector<Eigen::Vector3f>& vertices);
+        PointCloud(Shader* shader, MeshData* meshData, const std::vector<Eigen::Vector3f>& vertices);
         ~PointCloud();
 
         void init(std::vector<float>& buffer, std::vector<unsigned int>& indices) override;

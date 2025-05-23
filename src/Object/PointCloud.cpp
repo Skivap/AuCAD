@@ -1,8 +1,8 @@
 #include "PointCloud.hpp"
 
 
-Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f>& vertices)
-: Base(shader), m_selectedColor(1.0f, 0.0f, 0.0f), m_baseColor(0.0f, 0.0f, 0.0f)
+Object::PointCloud::PointCloud(Shader* shader, MeshData* meshData, const std::vector<Eigen::Vector3f>& vertices)
+: Base(shader), m_selectedColor(1.0f, 0.0f, 0.0f), m_baseColor(0.0f, 0.0f, 0.0f), m_meshData(meshData)
 {
     m_offsets = vertices;
 
@@ -98,7 +98,14 @@ void Object::PointCloud::draw(const CameraParam& cameraParam)
     shader->setMat4("projection", cameraParam.projection);
     shader->setMat4("view", cameraParam.view);
     glBindVertexArray(VAO);
-    for(const Eigen::Vector3f& offset: m_offsets) {
+
+    const std::vector<bool> selected = m_meshData->getSelectedVertices();
+
+
+    for(int i = 0; i < m_offsets.size(); i++) {
+        if(!selected[i]) continue;
+        Eigen::Vector3f& offset = m_offsets[i];
+
         reset();
         translate(offset);
         shader->setMat4("model", modelMatrix);

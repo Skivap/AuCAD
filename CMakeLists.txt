@@ -42,6 +42,8 @@ add_executable(${PROJECT_NAME_VAR}
     # Additional Mesh Utilities
     src/Object/Utilities/MeshData.cpp
     src/Object/Utilities/MeshSelection.cpp
+    src/Object/Utilities/MeshProcessor.cpp
+    src/Object/Utilities/MeshVisualization.cpp
 
     # imgui
     external/imgui/src/imgui.cpp
