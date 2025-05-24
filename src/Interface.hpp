@@ -22,6 +22,7 @@ public:
         None        = 0x0,
         Triangle    = 0x1,
         Vertex      = 0x2,
+        AxisDebug   = 0x3
     };
 
 private:

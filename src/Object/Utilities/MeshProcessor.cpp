@@ -65,3 +65,32 @@ void MeshData::computeVertexWeight() {
         v.weight = weights;
     }
 }
+
+void MeshData::computeLaplacianMatrix() {
+    int n = m_vertices.size();
+
+    L.resize(n, n);
+    std::vector<Eigen::Triplet<double>> triplets;
+    std::vector<double> diagonal(n, 0.0);
+
+    for (Edge& e: m_edges) {
+        int i = e.he->vertex->index;
+        int j = e.he->prev->vertex->index;
+        double w = e.weight;
+
+        triplets.push_back(Eigen::Triplet<double>(i, j, -w));
+        triplets.push_back(Eigen::Triplet<double>(j, i, -w));
+        diagonal[i] += w;
+        diagonal[j] += w;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        triplets.emplace_back(i, i, diagonal[i]);
+    }
+
+    L.setFromTriplets(triplets.begin(), triplets.end());
+}
+
+void computeDeformedPosition() {
+
+}

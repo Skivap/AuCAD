@@ -54,6 +54,9 @@ void Interface::draw() {
     if (ImGui::RadioButton("Vertex", m_selectionMode == SelectionMode::Vertex)) {
         m_selectionMode = SelectionMode::Vertex;
     }
+    if (ImGui::RadioButton("Axis", m_selectionMode == SelectionMode::AxisDebug)) {
+        m_selectionMode = SelectionMode::AxisDebug;
+    }
 
     if (ImGui::Button("Visualize Default")) {
         m_visualizeMode = 1;

@@ -81,9 +81,7 @@ void Trackball::drag(double x, double y) {
     float dy = static_cast<float>(y - m_lastY);
 
     static const float rotationSpeed = 0.01f;
-    rotate(-dx * rotationSpeed, -dy * rotationSpeed);
-
-    updateCameraPosition();
+    rotate(dx * rotationSpeed, -dy * rotationSpeed);
 
     m_lastX = x;
     m_lastY = y;

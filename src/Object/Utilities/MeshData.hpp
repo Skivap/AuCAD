@@ -2,6 +2,7 @@
 #define MESH_DATA_HPP
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <glad/glad.h>
 
 class Vertex;
@@ -48,6 +49,8 @@ private:
     std::vector<bool> m_selectedEdges;
     std::vector<bool> m_selectedTriangles;
 
+    int lastSelectedVertex;
+
 public:
     void resetSelection();
     void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
@@ -59,13 +62,17 @@ public:
     static bool rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,
                                      Eigen::Vector3f& intersectPoint, float& t);
 
-public:
+private:
     // Processor Implementation =============================================================================================================
+    Eigen::SparseMatrix<double> L;
+public:
     void computeAll();
     void computeInteriorAngle();
     void computeCotangentWeight();
     void computeVertexWeight();
 
+    void computeLaplacianMatrix();
+    void computeDeformedPosition();
 public:
     // Visualization Implementation =============================================================================================================
     void refreshTriangleColor(MeshVisMode mode, float scalar = 0.08f);

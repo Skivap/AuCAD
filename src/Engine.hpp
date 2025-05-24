@@ -21,6 +21,8 @@ private:
     Trackball* m_trackball;
     Interface* m_interface;
 
+    bool m_isDraggingAxis;
+
 public:
     Engine();
     ~Engine();

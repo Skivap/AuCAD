@@ -4,7 +4,7 @@
 
 Engine* Engine::instance = nullptr;
 
-Engine::Engine() : m_renderer(), m_trackball()
+Engine::Engine() : m_renderer(), m_trackball(), m_isDraggingAxis(false)
 {
     instance = this;
 
@@ -74,24 +74,32 @@ void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int
         // float depth;
         // glReadPixels(xpos, instance->m_screenHeight - ypos, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
         Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), 0);
-        Eigen::Vector3f worldCoord = instance->m_trackball->unProject(screenCoord);
+        Eigen::Vector3f nearCoord = instance->m_trackball->unProject(screenCoord);
 
         Interface::SelectionMode mode = instance->m_interface->getSelectionMode();
         MeshData* meshData = instance->m_renderer->getMeshData();
+        Gizmo* gizmo = instance->m_renderer->getGizmo();
 
         switch(mode) {
             case Interface::SelectionMode::Triangle:
-                meshData->selectTriangle(instance->m_trackball->getPosition(), worldCoord);
+                meshData->selectTriangle(instance->m_trackball->getPosition(), nearCoord);
                 break;
 
             case Interface::SelectionMode::Vertex:
-                meshData->selectVertex(instance->m_trackball->getPosition(), worldCoord);
+                meshData->selectVertex(instance->m_trackball->getPosition(), nearCoord);
                 break;
-
+            case Interface::SelectionMode::AxisDebug:
+                gizmo->pickTranslation(instance->m_trackball->getPosition(), nearCoord);
+                instance->m_isDraggingAxis = true;
+                break;
             default:
                 break;
         }
-
+    }
+    else if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        Gizmo* gizmo = instance->m_renderer->getGizmo();
+        gizmo->clearSelection();
+        instance->m_isDraggingAxis = false;
     }
 }
 
@@ -103,6 +111,29 @@ void Engine::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 void Engine::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     instance->m_trackball->zoom(yoffset);
+}
+
+void Engine::update() {
+    MeshData* meshData = m_renderer->getMeshData();
+    if(m_interface->getVisualizeMode() == 1) {
+        meshData->refreshTriangleColor(MeshVisMode::None);
+    }
+    else if(m_interface->getVisualizeMode() == 2) {
+        meshData->refreshTriangleColor(MeshVisMode::Normals);
+    }
+    else if(m_interface->getVisualizeMode() == 3) {
+        meshData->refreshTriangleColor(MeshVisMode::Weight);
+    }
+
+    if(instance->m_isDraggingAxis == true) {
+        // Axis Logic Update
+        double xpos, ypos;
+        glfwGetCursorPos(m_window, &xpos, &ypos);
+        Eigen::Vector3f screenCoord(static_cast<float>(xpos), static_cast<float>(ypos), 0);
+        Eigen::Vector3f nearCoord = instance->m_trackball->unProject(screenCoord);
+        Gizmo* gizmo = instance->m_renderer->getGizmo();
+        gizmo->dragAlongAxis(m_trackball->getPosition(), nearCoord);
+    }
 }
 
 void Engine::run()
@@ -119,16 +150,7 @@ void Engine::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Update
-        MeshData* meshData = m_renderer->getMeshData();
-        if(m_interface->getVisualizeMode() == 1) {
-            meshData->refreshTriangleColor(MeshVisMode::None);
-        }
-        else if(m_interface->getVisualizeMode() == 2) {
-            meshData->refreshTriangleColor(MeshVisMode::Normals);
-        }
-        else if(m_interface->getVisualizeMode() == 3) {
-            meshData->refreshTriangleColor(MeshVisMode::Weight);
-        }
+        update();
 
         // Draw
         const CameraParam cameraParam(
