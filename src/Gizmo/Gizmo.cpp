@@ -146,15 +146,4 @@ void Gizmo::dragAlongAxis(const Eigen::Vector3f& cam_org, const Eigen::Vector3f&
     // Update translation along axis
     m_translation += axisDistance * axisDir;
     m_axis->setTranslation(m_translation);
-    updatePointRef();
-}
-
-void Gizmo::setPointRef(Eigen::Vector3f* ref) {
-    m_pointRef = ref;
-    m_translation = *ref;
-}
-
-void Gizmo::updatePointRef() {
-    if(m_pointRef)
-        *m_pointRef = m_translation;
 }

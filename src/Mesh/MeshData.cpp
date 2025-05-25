@@ -6,7 +6,7 @@
 #include <map>
 
 MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_shader, const std::string& filePath)
-: m_meshColor(0.8f, 0.2f, 0.2f), m_wireframeColor(1.0f, 1.0f, 1.0f), m_pointsColor(0.1f, 0.1f, 0.9f) {
+: m_meshColor(0.8f, 0.2f, 0.2f), m_wireframeColor(1.0f, 1.0f, 1.0f), m_pointsColor(0.1f, 0.1f, 0.9f), lastSelectedVertex(-1) {
     Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile( filePath,
 		aiProcess_CalcTangentSpace       |
@@ -169,7 +169,7 @@ void MeshData::initVisualizer(Shader* shader, Shader* wireframe_shader, Shader* 
             HalfEdge* he = e.he;
             wireframeIndices.push_back(Eigen::Vector2i(
                 he->vertex->index,
-                he->prev->vertex->index
+                he->twin->vertex->index
             ));
         }
 
@@ -183,5 +183,5 @@ void MeshData::initVisualizer(Shader* shader, Shader* wireframe_shader, Shader* 
 void MeshData::draw(const CameraParam& cameraParam) {
     m_mesh->draw(cameraParam);
     m_wireframe->draw(cameraParam);
-    m_pointCloud->draw(cameraParam);
+    m_pointCloud->draw(cameraParam, m_selectedVertices);
 }

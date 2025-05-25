@@ -81,17 +81,6 @@ Object::Axis::Axis(Shader* shader, float radius, float radius_scale, float scale
 
     bufferSize = buffer.size();
     indicesSize = indices.size();
-
-    // std::cout << bufferSize << " " << indices.size() << "\n";
-
-    // Shader* pcshader = new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl");
-    // std::vector<Eigen::Vector3f> vec, nor;
-    // std::vector<Eigen::Vector3i> indi;
-    // for(int i=0; i<vertices.size(); i+=3)
-    //     {vec.push_back(Eigen::Vector3f(vertices[i],vertices[i+1],vertices[i+2]));
-    //      nor.push_back(Eigen::Vector3f(normals[i],normals[i+1],normals[i+2])); }
-    // for(int i=0; i<indices.size(); i+=3) indi.push_back(Eigen::Vector3i(indices[i], indices[i+1], indices[i+2]));
-    // pc = new Mesh(pcshader, vec, nor, indi);
 }
 
 Object::Axis::~Axis() {
@@ -157,6 +146,4 @@ void Object::Axis::draw(const CameraParam& cameraParam) {
                   << std::hex << err << std::dec
                   << ": " << GetGLErrorString(err) << "\n";
     }
-
-    // pc->draw(cameraParam);
 }

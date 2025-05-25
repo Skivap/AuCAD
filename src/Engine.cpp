@@ -82,16 +82,27 @@ void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int
 
         switch(mode) {
             case Interface::SelectionMode::Triangle:
-                meshData->selectTriangle(instance->m_trackball->getPosition(), nearCoord);
-                break;
-
+                {
+                    meshData->selectTriangle(instance->m_trackball->getPosition(), nearCoord);
+                    break;
+                }
             case Interface::SelectionMode::Vertex:
-                meshData->selectVertex(instance->m_trackball->getPosition(), nearCoord);
-                break;
+                {
+                    int idx = meshData->selectVertex(instance->m_trackball->getPosition(), nearCoord);
+                    if (idx != -1) {
+                        gizmo->setTranslation(meshData->getVertex(idx).pos.cast<float>());
+                    }
+                    break;
+                }
             case Interface::SelectionMode::AxisDebug:
-                gizmo->pickTranslation(instance->m_trackball->getPosition(), nearCoord);
-                instance->m_isDraggingAxis = true;
-                break;
+                {
+                    const int idx = meshData->getLastSelectedVertex();
+                    if(idx != -1) {
+                        gizmo->pickTranslation(instance->m_trackball->getPosition(), nearCoord);
+                        instance->m_isDraggingAxis = true;
+                    }
+                    break;
+                }
             default:
                 break;
         }
@@ -133,6 +144,12 @@ void Engine::update() {
         Eigen::Vector3f nearCoord = instance->m_trackball->unProject(screenCoord);
         Gizmo* gizmo = instance->m_renderer->getGizmo();
         gizmo->dragAlongAxis(m_trackball->getPosition(), nearCoord);
+
+        const Eigen::Vector3f& t = gizmo->getTranslation();
+        int idx = meshData->getLastSelectedVertex();
+        if(idx != -1) {
+            meshData->changeVertexPosition(idx, t);
+        }
     }
 }
 

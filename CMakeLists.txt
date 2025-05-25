@@ -45,7 +45,7 @@ add_executable(${PROJECT_NAME_VAR}
     src/Mesh/MeshData.cpp
     src/Mesh/MeshSelection.cpp
     src/Mesh/MeshProcessor.cpp
-    src/Mesh/MeshVisualization.cpp
+    src/Mesh/MeshBuffer.cpp
 
     # Gizmo Utilities
     src/Gizmo/Gizmo.cpp

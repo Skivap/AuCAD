@@ -2,14 +2,12 @@
 #define AXIS_HPP
 
 #include "BaseObject.hpp"
-#include "Mesh.hpp"
 
 namespace Object
 {
     class Axis : public Base
     {
     private:
-        Mesh* pc;
         Eigen::Vector3f m_translation;
     public:
         Axis(Shader* shader, float radius, float radius_scale, float scale, float offset, int segments);

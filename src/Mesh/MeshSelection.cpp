@@ -41,7 +41,7 @@ void MeshData::selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vecto
     }
 }
 
-void MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint) {
+int MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint) {
     Eigen::Vector3f ray_dir = (nearPoint - cam_org).normalized();
 
     float closest_t = std::numeric_limits<float>::max();
@@ -60,7 +60,7 @@ void MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3
 
     Eigen::Vector3f intersectPoint = cam_org + ray_dir * closest_t;
     float closest_dist = std::numeric_limits<float>::max();
-    int selected_vertex;
+    int selected_vertex = -1;
     if (selected_triangle != -1) {
         const Triangle& tri = m_triangles[selected_triangle];
         const HalfEdge* he = tri.he;
@@ -73,10 +73,13 @@ void MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3
             he = he->next;
         }
 
-        m_selectedVertices[selected_vertex] = true;
+        m_selectedVertices[selected_vertex] = !m_selectedVertices[selected_vertex];
         lastSelectedVertex = selected_vertex;
 
     } else lastSelectedVertex = -1;
+
+    lastSelectedVertex = m_selectedVertices[selected_vertex] ? selected_vertex : -1;
+    return lastSelectedVertex;
 }
 
 bool MeshData::rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,

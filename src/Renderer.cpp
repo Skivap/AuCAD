@@ -34,5 +34,7 @@ void Renderer::draw(const CameraParam& cameraParam)
 {
     m_plane->draw(cameraParam);
     m_meshData->draw(cameraParam);
-    m_gizmo->draw(cameraParam);
+    if (m_meshData->getLastSelectedVertex() != -1) {
+        m_gizmo->draw(cameraParam);
+    }
 }

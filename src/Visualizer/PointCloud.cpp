@@ -109,3 +109,20 @@ void Object::PointCloud::draw(const CameraParam& cameraParam)
         glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
     }
 }
+
+void Object::PointCloud::draw(const CameraParam& cameraParam, const std::vector<bool>& constraint)
+{
+    shader->use();
+    shader->setMat4("projection", cameraParam.projection);
+    shader->setMat4("view", cameraParam.view);
+    glBindVertexArray(VAO);
+
+    for(int i = 0; i < m_offsets.size(); i++) {
+        if(!constraint[i]) continue;
+        Eigen::Vector3f& offset = m_offsets[i];
+        reset();
+        translate(offset);
+        shader->setMat4("model", modelMatrix);
+        glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+    }
+}

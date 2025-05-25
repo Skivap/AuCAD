@@ -49,6 +49,8 @@ public:
     const std::vector<Edge>& getEdges() { return m_edges; }
     const std::vector<Vertex>& getVertices() { return m_vertices; }
 
+    const Vertex& getVertex(int idx) { return m_vertices[idx]; }
+
     // Selection =============================================================================================================
 private:
     Eigen::Vector3f m_meshColor, m_wireframeColor, m_pointsColor;
@@ -63,13 +65,15 @@ private:
 public:
     void resetSelection();
     void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
-    void selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
+    int selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
     void selectEdges(); // TODO
 
     const std::vector<bool>& getSelectedVertices(){ return m_selectedVertices; }
 
     static bool rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,
                                      Eigen::Vector3f& intersectPoint, float& t);
+
+    const int getLastSelectedVertex() { return lastSelectedVertex; }
 
 private:
     // Processor Implementation =============================================================================================================

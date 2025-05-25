@@ -17,6 +17,7 @@ namespace Object
 
         void init(std::vector<float>& buffer, std::vector<unsigned int>& indices) override;
         void draw(const CameraParam& cameraParam) override;
+        void draw(const CameraParam& cameraParam, const std::vector<bool>& constraint);
 
         inline void updateOffset(int idx, Eigen::Vector3f& val) { m_offsets[idx] = val; }
     };

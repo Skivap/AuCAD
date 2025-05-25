@@ -98,30 +98,65 @@ void MeshData::changeTriangleColor(int idx, Eigen::Vector3f color) {
 }
 
 void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
-    size_t vertCounts = m_selectedTriangles.size() * 3;
-    size_t length = vertCounts * 3 * sizeof(float);
+    {
+        size_t vertCounts = m_triangles.size() * 3;
+        size_t length = vertCounts * 3 * sizeof(float);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBOmesh);
-    void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
-    if(!ptr) return;
+        // VBO MESH
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOmesh);
+        void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
+        if(!ptr) return;
 
-    Vertex& v = m_vertices[idx];
+        Vertex& v = m_vertices[idx];
 
-    HalfEdge* he = v.he;
-    do {
-        Triangle* tri = he->face;
-        for(int i = 0; i < 3; i++) {
-            if(he->vertex->index == v.index) {
-                size_t offset = (tri->index * 3 + i) * 3 * sizeof(float);
+        HalfEdge* he = v.he;
+        do {
+            Triangle* tri = he->face;
+            HalfEdge* th = tri->he->prev;
+            for(int i = 0; i < 3; i++) {
+                if(th->vertex->index == v.index) {
+                    size_t offset = (tri->index * 3 + i) * 3 * sizeof(float);
+                    memcpy((char*)ptr + offset, pos.data(), 3 * sizeof(float));
+                }
+                th = th->next;
+            }
+            he = he->next->twin;
+        } while(he != v.he);
+
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    {
+        size_t vertCounts = m_edges.size() * 2;
+        size_t length = vertCounts * 3 * sizeof(float);
+
+        // VBO MESH
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOwireframe);
+        void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
+        if(!ptr) return;
+
+        Vertex& v = m_vertices[idx];
+
+        HalfEdge* he = v.he;
+        do {
+            Edge* e = he->edge;
+            HalfEdge* th = e->he;
+            if(th->vertex->index == v.index) {
+                size_t offset = (e->index * 2) * 3 * sizeof(float);
                 memcpy((char*)ptr + offset, pos.data(), 3 * sizeof(float));
             }
-        }
-        he = he->next->twin;
-    } while(he != v.he);
+            else {
+                size_t offset = (e->index * 2 + 1) * 3 * sizeof(float);
+                memcpy((char*)ptr + offset, pos.data(), 3 * sizeof(float));
+            }
 
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+            he = he->next->twin;
+        } while(he != v.he);
+
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    m_pointCloud->updateOffset(idx, pos);
 }
-
-// void MeshData::changeEdgeColor(int idx, Eigen::Vector3f color) {
-// }
