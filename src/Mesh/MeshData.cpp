@@ -1,10 +1,60 @@
 #include "MeshData.hpp"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include <map>
 
-MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
-                   const std::vector<Eigen::Vector3i>& indices)
+MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_shader, const std::string& filePath)
 : m_meshColor(0.8f, 0.2f, 0.2f), m_wireframeColor(1.0f, 1.0f, 1.0f), m_pointsColor(0.1f, 0.1f, 0.9f) {
+    Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile( filePath,
+		aiProcess_CalcTangentSpace       |
+		aiProcess_Triangulate            |
+		aiProcess_JoinIdenticalVertices  |
+		aiProcess_SortByPType);
+
+	if(!scene) {
+	    std::cout << "Couldn't load model " << filePath << '\n';
+		std::terminate();
+	}
+
+	std::cout << "Loading 3D model " << filePath << '\n';
+
+	for(int i = 0; i < /*scene->mNumMeshes*/ 1; i++) {
+	    std::vector<Eigen::Vector3f> vertices;
+        std::vector<Eigen::Vector3f> normals;
+        std::vector<Eigen::Vector3i> indices;
+
+		aiMesh* mesh = scene->mMeshes[i];
+
+		// Vertices & Normals
+		for(int j = 0; j < mesh->mNumVertices; j++) {
+		    aiVector3D position = mesh->mVertices[j];
+			vertices.push_back(Eigen::Vector3f(position.x, position.y, position.z));
+
+			aiVector3D normal = mesh->mNormals[j];
+			normals.push_back(Eigen::Vector3f(normal.x, normal.y, normal.z));
+		}
+
+		// Indices
+		for(int j = 0; j < mesh->mNumFaces; j++) {
+			aiFace face = mesh->mFaces[j];
+			indices.push_back(Eigen::Vector3i(face.mIndices[0], face.mIndices[1], face.mIndices[2]));
+		}
+
+		// Push to list of meshes
+		init(vertices, normals, indices);
+		initVisualizer(shader, wireframe_shader, pointcloud_shader, vertices, normals, indices);
+	}
+
+    m_VBOmesh = m_mesh->getVBO();
+    m_VBOwireframe = m_wireframe->getVBO();
+    resetSelection();
+}
+
+void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
+                    const std::vector<Eigen::Vector3i>& indices) {
     m_vertices.resize(vertices.size());
     m_triangles.resize(indices.size());
     m_halfEdges.resize(indices.size() * 3);
@@ -101,8 +151,37 @@ MeshData::MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vect
     m_selectedTriangles.resize(m_triangles.size(), false);
 }
 
-void MeshData::assignVBO(GLuint VBOmesh, GLuint VBOwireframe) {
-    m_VBOmesh = VBOmesh;
-    m_VBOwireframe = VBOwireframe;
-    resetSelection();
+void MeshData::initVisualizer(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_shader,
+                              const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals, const std::vector<Eigen::Vector3i>& indices) {
+    // Mesh Visualizer
+    m_mesh = new Object::Mesh(shader, vertices, normals, indices);
+
+    // Wireframe Visualizer
+    {
+        std::vector<Eigen::Vector3f> wireframePos;
+        std::vector<Eigen::Vector2i> wireframeIndices;
+
+        for (const Vertex& vertex : m_vertices) {
+            wireframePos.push_back(vertex.pos.cast<float>());
+        }
+
+        for (Edge e: m_edges) {
+            HalfEdge* he = e.he;
+            wireframeIndices.push_back(Eigen::Vector2i(
+                he->vertex->index,
+                he->prev->vertex->index
+            ));
+        }
+
+        m_wireframe = new Object::Wireframe(wireframe_shader, wireframePos, wireframeIndices);
+    }
+
+    // Point Cloud Visualizer
+    m_pointCloud = new Object::PointCloud(pointcloud_shader, vertices);
+}
+
+void MeshData::draw(const CameraParam& cameraParam) {
+    m_mesh->draw(cameraParam);
+    m_wireframe->draw(cameraParam);
+    m_pointCloud->draw(cameraParam);
 }

@@ -8,7 +8,7 @@ layout(location = 2) in vec3 color;
 // Uniform
 uniform mat4 projection;
 uniform mat4 view;
-uniform mat4 viewport;
+uniform mat4 model;
 
 struct VertexData {
     vec3 color;
@@ -20,5 +20,5 @@ void main()
 {
     vertexData.normal = normal;
     vertexData.color = color;
-    gl_Position = viewport * projection * view * vec4(position, 1.0);
+    gl_Position = projection * view * model * vec4(position, 1.0);
 }

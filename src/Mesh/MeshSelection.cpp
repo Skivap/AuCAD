@@ -74,7 +74,9 @@ void MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3
         }
 
         m_selectedVertices[selected_vertex] = true;
-    }
+        lastSelectedVertex = selected_vertex;
+
+    } else lastSelectedVertex = -1;
 }
 
 bool MeshData::rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,

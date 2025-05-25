@@ -97,5 +97,31 @@ void MeshData::changeTriangleColor(int idx, Eigen::Vector3f color) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
+    size_t vertCounts = m_selectedTriangles.size() * 3;
+    size_t length = vertCounts * 3 * sizeof(float);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBOmesh);
+    void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
+    if(!ptr) return;
+
+    Vertex& v = m_vertices[idx];
+
+    HalfEdge* he = v.he;
+    do {
+        Triangle* tri = he->face;
+        for(int i = 0; i < 3; i++) {
+            if(he->vertex->index == v.index) {
+                size_t offset = (tri->index * 3 + i) * 3 * sizeof(float);
+                memcpy((char*)ptr + offset, pos.data(), 3 * sizeof(float));
+            }
+        }
+        he = he->next->twin;
+    } while(he != v.he);
+
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 // void MeshData::changeEdgeColor(int idx, Eigen::Vector3f color) {
 // }

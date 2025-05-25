@@ -34,19 +34,21 @@ add_executable(${PROJECT_NAME_VAR}
     src/Trackball.cpp
     src/Interface.cpp
 
-    # Object
-    src/Object/BaseObject.cpp
-    src/Object/Wireframe.cpp
-    src/Object/Mesh.cpp
-    src/Object/PointCloud.cpp
-    src/Object/Axis.cpp
-    # Additional Mesh Utilities
-    src/Object/Utilities/MeshData.cpp
-    src/Object/Utilities/MeshSelection.cpp
-    src/Object/Utilities/MeshProcessor.cpp
-    src/Object/Utilities/MeshVisualization.cpp
-    # Additional Gizmo Utilities
-    src/Object/Gizmo/Gizmo.cpp
+    # Visualizer
+    src/Visualizer/BaseObject.cpp
+    src/Visualizer/Wireframe.cpp
+    src/Visualizer/Mesh.cpp
+    src/Visualizer/PointCloud.cpp
+    src/Visualizer/Axis.cpp
+
+    # Mesh Utilities
+    src/Mesh/MeshData.cpp
+    src/Mesh/MeshSelection.cpp
+    src/Mesh/MeshProcessor.cpp
+    src/Mesh/MeshVisualization.cpp
+
+    # Gizmo Utilities
+    src/Gizmo/Gizmo.cpp
 
     # imgui
     external/imgui/src/imgui.cpp

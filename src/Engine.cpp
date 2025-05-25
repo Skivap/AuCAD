@@ -141,7 +141,7 @@ void Engine::run()
     glClearColor(0.5f, 0.5f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    // glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
 

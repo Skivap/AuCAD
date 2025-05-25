@@ -1,12 +1,6 @@
 #include "Axis.hpp"
 
-Object::Axis::Axis(Shader* shader) : Base(shader) {
-    // TODO: Change hyperparameter to somewhere else
-    float radius = 0.05f;
-    float radius_scale = 4.0f;
-    int segments = 16;
-    float scale = 0.2f; // original: 0.2f
-
+Object::Axis::Axis(Shader* shader, float radius, float radius_scale, float scale, float offset, int segments) : Base(shader) {
     std::vector<float> vertices;
     std::vector<float> normals;
     std::vector<float> colors;
@@ -25,7 +19,7 @@ Object::Axis::Axis(Shader* shader) : Base(shader) {
     };
 
     float rad[] = {radius, radius, radius * radius_scale};
-    float t[] = {0.0f, 0.7f, 0.7f};
+    float t[] = {0.0f, offset, offset};
 
     for (int ax = 0; ax < 3; ax++) {
         int baseIdx = ax * (3 * segments + 2);
@@ -88,9 +82,16 @@ Object::Axis::Axis(Shader* shader) : Base(shader) {
     bufferSize = buffer.size();
     indicesSize = indices.size();
 
-    // TODO: cleaner gizmo
-    m_gizmo = new Gizmo(radius * radius_scale * scale, t[1] * scale, 1.0f * scale);
-    m_gizmo->setTranslation(Eigen::Vector3f(1.0f, 0.0f, 0.0f));
+    // std::cout << bufferSize << " " << indices.size() << "\n";
+
+    // Shader* pcshader = new Shader("./shaders/shader.vs.glsl", "./shaders/shader.fs.glsl");
+    // std::vector<Eigen::Vector3f> vec, nor;
+    // std::vector<Eigen::Vector3i> indi;
+    // for(int i=0; i<vertices.size(); i+=3)
+    //     {vec.push_back(Eigen::Vector3f(vertices[i],vertices[i+1],vertices[i+2]));
+    //      nor.push_back(Eigen::Vector3f(normals[i],normals[i+1],normals[i+2])); }
+    // for(int i=0; i<indices.size(); i+=3) indi.push_back(Eigen::Vector3i(indices[i], indices[i+1], indices[i+2]));
+    // pc = new Mesh(pcshader, vec, nor, indi);
 }
 
 Object::Axis::~Axis() {
@@ -116,12 +117,13 @@ void Object::Axis::init(std::vector<float>& buffer, std::vector<unsigned int>& i
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 void Object::Axis::draw(const CameraParam& cameraParam) {
     reset();
-    translate(m_gizmo->getTranslation());
+    translate(m_translation);
 
     shader->use();
     shader->setMat4("projection", cameraParam.projection);
@@ -132,4 +134,29 @@ void Object::Axis::draw(const CameraParam& cameraParam) {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indicesSize), GL_UNSIGNED_INT, 0);
     glDepthRange(0.0, 1.0);
+
+    // Helper to turn an error code into a human-readable string
+    auto GetGLErrorString = [](GLenum err) {
+        switch (err) {
+            case GL_NO_ERROR:                      return "GL_NO_ERROR";
+            case GL_INVALID_ENUM:                  return "GL_INVALID_ENUM";
+            case GL_INVALID_VALUE:                 return "GL_INVALID_VALUE";
+            case GL_INVALID_OPERATION:             return "GL_INVALID_OPERATION";
+            case GL_STACK_OVERFLOW:                return "GL_STACK_OVERFLOW";
+            case GL_STACK_UNDERFLOW:               return "GL_STACK_UNDERFLOW";
+            case GL_OUT_OF_MEMORY:                 return "GL_OUT_OF_MEMORY";
+            case GL_INVALID_FRAMEBUFFER_OPERATION: return "GL_INVALID_FRAMEBUFFER_OPERATION";
+            default:                               return "Unknown GL error";
+        }
+    };
+
+    // Call this right after the block you want to check
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "[OpenGL][] Error 0x"
+                  << std::hex << err << std::dec
+                  << ": " << GetGLErrorString(err) << "\n";
+    }
+
+    // pc->draw(cameraParam);
 }

@@ -1,18 +1,35 @@
 #include "Gizmo.hpp"
 #include <iostream>
 
-Gizmo::Gizmo(float rad, float start, float end) : m_translation(0.0f, 0.0f, 0.0f) {
+Gizmo::Gizmo(Shader* shader) {
+    float rad = 0.05f;
+    float rad_scale = 4.0f;
+    // Overall Scale
+    float scale = 0.2f;
+    // Base & Tip
+    float start = 0.7f;
+    int segments = 16;
+
     m_radius = rad;
-    m_start = start;
-    m_end = end;
+    m_start = start * scale;
+    m_end = 1.0f * scale;
     m_selectedAxis = None;
+
+    m_axis = new Object::Axis(shader, rad, rad_scale, scale, start, segments);
+
+    m_translation = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    m_axis->setTranslation(m_translation);
 }
 
 Gizmo::~Gizmo() {
 
 }
 
-Gizmo::Axis Gizmo::pickTranslation(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint) {
+void Gizmo::draw(const CameraParam& cameraParam) {
+    m_axis->draw(cameraParam);
+}
+
+Gizmo::AxisDir Gizmo::pickTranslation(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint) {
 
     const Eigen::Vector3f ray_dir = (nearPoint - cam_org).normalized();
 
@@ -22,7 +39,7 @@ Gizmo::Axis Gizmo::pickTranslation(const Eigen::Vector3f& cam_org, const Eigen::
         Eigen::Vector3f(0, 0, 1)
     };
 
-    Axis closestAxis = None;
+    AxisDir closestAxis = None;
     float minDistance = std::numeric_limits<float>::max();
 
 
@@ -66,7 +83,7 @@ Gizmo::Axis Gizmo::pickTranslation(const Eigen::Vector3f& cam_org, const Eigen::
             if (along >= 0.0f && along <= h) {
                 if (t < minDistance) {
                     minDistance = t;
-                    closestAxis = static_cast<Axis>(i);
+                    closestAxis = static_cast<AxisDir>(i);
                 }
             }
         }
@@ -78,7 +95,7 @@ Gizmo::Axis Gizmo::pickTranslation(const Eigen::Vector3f& cam_org, const Eigen::
                 Eigen::Vector3f hitPoint = cam_org + t_disk * ray_dir;
                 if ((hitPoint - base).squaredNorm() <= r * r) {
                     minDistance = t_disk;
-                    closestAxis = static_cast<Axis>(i);
+                    closestAxis = static_cast<AxisDir>(i);
                 }
             }
         }
@@ -128,4 +145,16 @@ void Gizmo::dragAlongAxis(const Eigen::Vector3f& cam_org, const Eigen::Vector3f&
 
     // Update translation along axis
     m_translation += axisDistance * axisDir;
+    m_axis->setTranslation(m_translation);
+    updatePointRef();
+}
+
+void Gizmo::setPointRef(Eigen::Vector3f* ref) {
+    m_pointRef = ref;
+    m_translation = *ref;
+}
+
+void Gizmo::updatePointRef() {
+    if(m_pointRef)
+        *m_pointRef = m_translation;
 }

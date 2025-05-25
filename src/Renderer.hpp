@@ -3,20 +3,21 @@
 
 #include <Eigen/Dense>
 
-#include "Object/BaseObject.hpp"
-#include "Object/Wireframe.hpp"
-#include "Object/Mesh.hpp"
-#include "Object/Axis.hpp"
+#include "Visualizer/BaseObject.hpp"
+
+#include "Mesh/MeshData.hpp"
+#include "Gizmo/Gizmo.hpp"
 
 #include "Utilities/Shader.hpp"
 
 class Renderer {
 private:
-    Object::Wireframe* m_plane;
-    Object::Mesh* m_mesh;
-    Object::Axis* m_axis;
+    MeshData* m_meshData;
+    Gizmo* m_gizmo;
 
-    Shader* m_wireframe;
+    Object::Wireframe* m_plane;
+
+    Shader* m_wireframeShader;
     Shader* m_meshShader;
     Shader* m_axisShader;
 
@@ -30,8 +31,8 @@ public:
 
     void draw(const CameraParam& cameraParam);
 
-    MeshData* getMeshData() { return m_mesh->getMeshData(); }
-    Gizmo* getGizmo() { return m_axis->getGizmo(); }
+    MeshData* getMeshData() { return m_meshData; }
+    Gizmo* getGizmo() { return m_gizmo; }
 
 public:
 };

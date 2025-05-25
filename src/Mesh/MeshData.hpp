@@ -5,6 +5,12 @@
 #include <Eigen/Sparse>
 #include <glad/glad.h>
 
+#include "../Utilities/Shader.hpp"
+
+#include "../Visualizer/Mesh.hpp"
+#include "../Visualizer/Wireframe.hpp"
+#include "../Visualizer/PointCloud.hpp"
+
 class Vertex;
 class Edge;
 class Triangle;
@@ -30,10 +36,13 @@ public:
     // Constructor =============================================================================================================
     // The VBO assignment is assume that we store the vertices without EBO, and the VAO has the same order with indices
     // Yes, there will be a duplicate vertices inside VBO
-    MeshData(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
-             const std::vector<Eigen::Vector3i>& indices);
 
-    void assignVBO(GLuint VBOmesh, GLuint VBOwireframe);
+    MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_shader, const std::string& filePath);
+    void init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
+              const std::vector<Eigen::Vector3i>& indices);
+    void initVisualizer(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_shader,
+   	                    const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals, const std::vector<Eigen::Vector3i>& indices);
+    void draw(const CameraParam& cameraParam);
 
     const std::vector<HalfEdge>& getHalfEdges() { return m_halfEdges; }
     const std::vector<Triangle>& getTriangles() { return m_triangles; }
@@ -55,7 +64,7 @@ public:
     void resetSelection();
     void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
     void selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
-    void selectEdges();
+    void selectEdges(); // TODO
 
     const std::vector<bool>& getSelectedVertices(){ return m_selectedVertices; }
 
@@ -73,12 +82,19 @@ public:
 
     void computeLaplacianMatrix();
     void computeDeformedPosition();
-public:
+
+
+private:
     // Visualization Implementation =============================================================================================================
+    Object::Mesh* m_mesh;
+    Object::Wireframe* m_wireframe;
+    Object::PointCloud* m_pointCloud;
+public:
     void refreshTriangleColor(MeshVisMode mode, float scalar = 0.08f);
     void refreshEdgeColor();
 
     void changeTriangleColor(int idx, Eigen::Vector3f color);
+    void changeVertexPosition(int idx, Eigen::Vector3f pos);
 };
 
 // Vertex Data ======================================================================================
