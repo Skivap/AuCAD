@@ -5,7 +5,7 @@
 #include <imgui_impl_opengl3.h>
 
 Interface::Interface(GLFWwindow* window, int screen_width, int screen_height)
-    : m_window(window), m_width(screen_width), m_height(screen_height)
+    : m_window(window), m_width(screen_width), m_height(screen_height), m_computeDeformedPos(false)
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -35,6 +35,7 @@ void Interface::resize(int width, int height) {
 
 void Interface::draw() {
     m_visualizeMode = 0; // TODO: Find a way for better visualization
+    m_computeDeformedPos = false;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -68,6 +69,10 @@ void Interface::draw() {
 
     if (ImGui::Button("Visualize Weight")) {
         m_visualizeMode = 3;
+    }
+
+    if(ImGui::Button("Compute ARAP")) {
+        m_computeDeformedPos = true;
     }
 
     ImGui::End();

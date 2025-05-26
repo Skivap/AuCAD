@@ -136,6 +136,10 @@ void Engine::update() {
         meshData->refreshTriangleColor(MeshVisMode::Weight);
     }
 
+    if (m_interface->getCompute()) {
+        meshData->computeLaplacianSurfaceModeling();
+    }
+
     if(instance->m_isDraggingAxis == true) {
         // Axis Logic Update
         double xpos, ypos;

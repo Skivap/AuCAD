@@ -20,6 +20,7 @@ namespace Object
         void draw(const CameraParam& cameraParam, const std::vector<bool>& constraint);
 
         inline void updateOffset(int idx, Eigen::Vector3f& val) { m_offsets[idx] = val; }
+        void updateOffsets(std::vector<Eigen::Vector3f>& new_offset);
     };
 }
 

@@ -51,6 +51,8 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
     m_VBOmesh = m_mesh->getVBO();
     m_VBOwireframe = m_wireframe->getVBO();
     resetSelection();
+
+    computeAll();
 }
 
 void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
@@ -64,6 +66,9 @@ void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vec
         m_vertices[i].pos = vertices[i].cast<double>();
         m_vertices[i].normal = normals[i].cast<double>();
         m_vertices[i].index = i;
+
+        m_vertices[i].originalPos = m_vertices[i].pos;
+        m_vertices[i].deformedRot = Eigen::Matrix4d::Identity();
     }
 
     // Setup HalfEdge ========================================

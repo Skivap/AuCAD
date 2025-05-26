@@ -10,6 +10,7 @@ private:
     int m_width, m_height;
 
     int m_visualizeMode; // TODO: Find a better way for the UI to visualize
+    bool m_computeDeformedPos;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
@@ -32,6 +33,7 @@ private:
 public:
     const SelectionMode getSelectionMode() { return m_selectionMode; }
     const int getVisualizeMode(){ return m_visualizeMode; }
+    const bool getCompute() { return m_computeDeformedPos; }
 };
 
 #endif // INTERFACE_HPP

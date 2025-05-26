@@ -2,13 +2,13 @@
 
 
 Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f>& vertices)
-: Base(shader), m_baseColor(0.0f, 0.0f, 0.0f)
+: Base(shader), m_baseColor(1.0f, 1.0f, 0.0f)
 {
     m_offsets = vertices;
 
     const int rings = 16;
     const int segments = 16;
-    const float radius = 0.005f;
+    const float radius = 0.01f;
 
     std::vector<float> buffer;
     std::vector<unsigned int> indices;
@@ -37,9 +37,9 @@ Object::PointCloud::PointCloud(Shader* shader, const std::vector<Eigen::Vector3f
             buffer.push_back(ny);
             buffer.push_back(nz);
             // Color
-            buffer.push_back(0.0f);
-            buffer.push_back(0.0f);
-            buffer.push_back(0.0f);
+            buffer.push_back(m_baseColor.x());
+            buffer.push_back(m_baseColor.y());
+            buffer.push_back(m_baseColor.z());
         }
     }
 

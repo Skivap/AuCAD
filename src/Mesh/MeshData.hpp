@@ -77,15 +77,14 @@ public:
 
 private:
     // Processor Implementation =============================================================================================================
-    Eigen::SparseMatrix<double> L;
 public:
     void computeAll();
     void computeInteriorAngle();
     void computeCotangentWeight();
     void computeVertexWeight();
 
-    void computeLaplacianMatrix();
     void computeDeformedPosition();
+    void computeLaplacianSurfaceModeling();
 
 
 private:
@@ -99,6 +98,8 @@ public:
 
     void changeTriangleColor(int idx, Eigen::Vector3f color);
     void changeVertexPosition(int idx, Eigen::Vector3f pos);
+
+    void refreshPosition();
 };
 
 // Vertex Data ======================================================================================
@@ -111,6 +112,9 @@ public:
 
     Eigen::Vector3d pos;
     Eigen::Vector3d normal;
+
+    Eigen::Vector3d originalPos; // Original constraint
+    Eigen::Matrix4d deformedRot;
 public:
     Vertex() :
         he(nullptr) {}

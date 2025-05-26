@@ -5,12 +5,12 @@ Gizmo::Gizmo(Shader* shader) {
     float rad = 0.05f;
     float rad_scale = 4.0f;
     // Overall Scale
-    float scale = 0.2f;
+    float scale = 0.05f;
     // Base & Tip
     float start = 0.7f;
     int segments = 16;
 
-    m_radius = rad;
+    m_radius = rad * rad_scale * scale;
     m_start = start * scale;
     m_end = 1.0f * scale;
     m_selectedAxis = None;

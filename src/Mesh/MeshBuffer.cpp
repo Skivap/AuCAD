@@ -160,3 +160,32 @@ void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
 
     m_pointCloud->updateOffset(idx, pos);
 }
+
+ void MeshData::refreshPosition() {
+    {
+        size_t vertCounts = m_triangles.size() * 3;
+        size_t length = vertCounts * 3 * sizeof(float);
+
+        // VBO MESH
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOmesh);
+        void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
+        if(!ptr) return;
+
+        std::vector<float> replacement;
+
+        for(size_t t_idx = 0; t_idx < m_triangles.size(); t_idx++) {
+            HalfEdge* he = m_triangles[t_idx].he->prev;
+            for(int it = 0; it < 3; it++) {
+                Vertex* v = he->vertex;
+                replacement.push_back(v->pos[0]);
+                replacement.push_back(v->pos[1]);
+                replacement.push_back(v->pos[2]);
+                he = he->next;
+            }
+        }
+
+        memcpy((char*)ptr, replacement.data(), length);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
