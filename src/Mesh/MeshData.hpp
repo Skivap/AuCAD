@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <glad/glad.h>
+#include <igl/arap.h>
 
 #include "../Utilities/Shader.hpp"
 
@@ -78,13 +79,7 @@ public:
 private:
     // Processor Implementation =============================================================================================================
 public:
-    void computeAll();
-    void computeInteriorAngle();
-    void computeCotangentWeight();
-    void computeVertexWeight();
-
-    void computeDeformedPosition();
-    void computeLaplacianSurfaceModeling();
+    void computeARAP();
 
 
 private:
@@ -106,7 +101,7 @@ public:
 class Vertex {
 public:
     unsigned int index;
-    double weight;
+    Eigen::Vector3d meanCurvatureNormal;
 
     HalfEdge* he;
 

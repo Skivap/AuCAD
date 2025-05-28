@@ -9,10 +9,12 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
 : m_meshColor(0.8f, 0.2f, 0.2f), m_wireframeColor(1.0f, 1.0f, 1.0f), m_pointsColor(0.1f, 0.1f, 0.9f), lastSelectedVertex(-1) {
     Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile( filePath,
-		aiProcess_CalcTangentSpace       |
-		aiProcess_Triangulate            |
-		aiProcess_JoinIdenticalVertices  |
-		aiProcess_SortByPType);
+    	aiProcess_Triangulate |
+        aiProcess_JoinIdenticalVertices |
+        aiProcess_CalcTangentSpace |
+        aiProcess_SortByPType |
+        aiProcess_ValidateDataStructure |
+        aiProcess_ImproveCacheLocality);
 
 	if(!scene) {
 	    std::cout << "Couldn't load model " << filePath << '\n';
@@ -28,13 +30,22 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
 
 		aiMesh* mesh = scene->mMeshes[i];
 
+		if(mesh->mNormals == nullptr) {
+		    std::cout << "NullPtr Normal\n";
+		}
+
 		// Vertices & Normals
 		for(int j = 0; j < mesh->mNumVertices; j++) {
 		    aiVector3D position = mesh->mVertices[j];
 			vertices.push_back(Eigen::Vector3f(position.x, position.y, position.z));
 
-			aiVector3D normal = mesh->mNormals[j];
-			normals.push_back(Eigen::Vector3f(normal.x, normal.y, normal.z));
+			if(mesh->mNormals != nullptr) {
+			    aiVector3D normal = mesh->mNormals[j];
+				normals.push_back(Eigen::Vector3f(normal.x, normal.y, normal.z));
+			}
+			else{
+			    normals.push_back(Eigen::Vector3f(1.0f, 0.0f, 0.0f));
+			}
 		}
 
 		// Indices
@@ -51,8 +62,6 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
     m_VBOmesh = m_mesh->getVBO();
     m_VBOwireframe = m_wireframe->getVBO();
     resetSelection();
-
-    computeAll();
 }
 
 void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,

@@ -22,6 +22,8 @@ add_subdirectory(external/eigen)
 add_subdirectory(external/glfw)
 # Assimp
 add_subdirectory(external/assimp)
+# libigl
+add_subdirectory(external/libigl)
 
 # ==========================================
 # Add Executable
@@ -80,4 +82,5 @@ target_include_directories(${PROJECT_NAME_VAR}
         external/imgui/include
         external/stb_image/include
         external/assimp/include
+        external/libigl/include
 )

@@ -18,15 +18,33 @@ void MeshData::refreshTriangleColor(MeshVisMode mode, float scalar) {
                 int vidx = he->vertex->index;
                 switch(mode) {
                     case Normals:
-                        colorBuffer[i * 3 + 0] = m_vertices[vidx].normal.x();
-                        colorBuffer[i * 3 + 1] = m_vertices[vidx].normal.y();
-                        colorBuffer[i * 3 + 2] = m_vertices[vidx].normal.z();
+                        colorBuffer[i * 3 + 0] = static_cast<float>(m_vertices[vidx].normal.x());
+                        colorBuffer[i * 3 + 1] = static_cast<float>(m_vertices[vidx].normal.y());
+                        colorBuffer[i * 3 + 2] = static_cast<float>(m_vertices[vidx].normal.z());
                         break;
                     case Weight:
-                        colorBuffer[i * 3 + 0] = m_vertices[vidx].weight * scalar;
-                        colorBuffer[i * 3 + 1] = 0;
-                        colorBuffer[i * 3 + 2] = 0;
-                        break;
+                        {
+                            Eigen::Vector3d Hvec = m_vertices[vidx].meanCurvatureNormal;
+                            double sign = Hvec.dot(m_vertices[vidx].normal) >= 0 ? 1.0 : -1.0;
+                            double signedH = sign * Hvec.norm();
+
+                            // Normalize by max range
+                            float normalized = static_cast<float>(signedH / scalar);  // Now in [-1, 1]
+                            normalized = std::min(std::max(normalized, -1.0f), 1.0f);
+
+                            if (normalized < 0.0f) {
+                                // Concave (blue to white)
+                                colorBuffer[i * 3 + 0] = 1.0f + normalized;  // fades R from 1→0
+                                colorBuffer[i * 3 + 1] = 1.0f + normalized;  // fades G from 1→0
+                                colorBuffer[i * 3 + 2] = 1.0f;               // full blue
+                            } else {
+                                // Convex (white to red)
+                                colorBuffer[i * 3 + 0] = 1.0f;               // full red
+                                colorBuffer[i * 3 + 1] = 1.0f - normalized;  // fades G from 1→0
+                                colorBuffer[i * 3 + 2] = 1.0f - normalized;  // fades B from 1→0
+                            }
+                            break;
+                        }
                     default:
                         colorBuffer[i * 3 + 0] = m_meshColor.x();
                         colorBuffer[i * 3 + 1] = m_meshColor.y();
@@ -98,6 +116,7 @@ void MeshData::changeTriangleColor(int idx, Eigen::Vector3f color) {
 }
 
 void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
+    m_vertices[idx].pos = pos.cast<double>();
     {
         size_t vertCounts = m_triangles.size() * 3;
         size_t length = vertCounts * 3 * sizeof(float);

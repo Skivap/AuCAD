@@ -7,6 +7,13 @@ Renderer::Renderer()
     std::cout << "Initializing Models" << std::endl;
     initModels();
     std::cout << "Finish Initialization" << std::endl;
+
+
+    std::cout << "Eigen version: "
+              << EIGEN_WORLD_VERSION << "."
+              << EIGEN_MAJOR_VERSION << "."
+              << EIGEN_MINOR_VERSION << std::endl;
+    // return 0;
 }
 
 Renderer::~Renderer()
@@ -32,7 +39,7 @@ void Renderer::initModels()
 
 void Renderer::draw(const CameraParam& cameraParam)
 {
-    m_plane->draw(cameraParam);
+    // m_plane->draw(cameraParam);
     m_meshData->draw(cameraParam);
     if (m_meshData->getLastSelectedVertex() != -1) {
         m_gizmo->draw(cameraParam);

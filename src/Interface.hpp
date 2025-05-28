@@ -11,6 +11,9 @@ private:
 
     int m_visualizeMode; // TODO: Find a better way for the UI to visualize
     bool m_computeDeformedPos;
+
+    float m_weightThreshold;
+    bool weightUpdate;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
@@ -34,6 +37,11 @@ public:
     const SelectionMode getSelectionMode() { return m_selectionMode; }
     const int getVisualizeMode(){ return m_visualizeMode; }
     const bool getCompute() { return m_computeDeformedPos; }
+
+    const bool getWeightUpdate() { return weightUpdate; }
+    const float getWeight() { return m_weightThreshold; }
+
+    const bool isHovered();
 };
 
 #endif // INTERFACE_HPP

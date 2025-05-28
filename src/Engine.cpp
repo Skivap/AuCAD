@@ -64,11 +64,13 @@ void Engine::mouseButtonCallback(GLFWwindow* window, int button, int action, int
     glfwGetCursorPos(window, &xpos, &ypos);
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        instance->m_trackball->startDrag(xpos, ypos);
+        if(!instance->m_interface->isHovered())
+            instance->m_trackball->startDrag(xpos, ypos);
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
     {
-        instance->m_trackball->endDrag(xpos, ypos);
+        if(!instance->m_interface->isHovered())
+            instance->m_trackball->endDrag(xpos, ypos);
     }
     else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         // float depth;
@@ -125,6 +127,10 @@ void Engine::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 void Engine::update() {
+    static int lastMode = 1;
+
+    lastMode = m_interface->getVisualizeMode() != 0 ? m_interface->getVisualizeMode() : lastMode;
+
     MeshData* meshData = m_renderer->getMeshData();
     if(m_interface->getVisualizeMode() == 1) {
         meshData->refreshTriangleColor(MeshVisMode::None);
@@ -137,7 +143,12 @@ void Engine::update() {
     }
 
     if (m_interface->getCompute()) {
-        meshData->computeLaplacianSurfaceModeling();
+        meshData->computeARAP();
+        // meshData->computeLaplacianSurfaceModeling();
+    }
+
+    if(lastMode == 3 && m_interface->getWeightUpdate()) {
+        meshData->refreshTriangleColor(MeshVisMode::Weight, m_interface->getWeight());
     }
 
     if(instance->m_isDraggingAxis == true) {
