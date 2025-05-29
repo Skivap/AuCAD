@@ -207,4 +207,29 @@ void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
         glUnmapBuffer(GL_ARRAY_BUFFER);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
+
+    {
+        size_t vertCounts = m_edges.size() * 2;
+        size_t length = vertCounts * 3 * sizeof(float);
+
+        // VBO MESH
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBOwireframe);
+        void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, length, GL_MAP_WRITE_BIT);
+        if(!ptr) return;
+
+        std::vector<float> replacement;
+
+        for(int i = 0; i < m_edges.size(); i++) {
+            replacement.push_back(m_edges[i].he->vertex->pos[0]);
+            replacement.push_back(m_edges[i].he->vertex->pos[1]);
+            replacement.push_back(m_edges[i].he->vertex->pos[2]);
+            replacement.push_back(m_edges[i].he->twin->vertex->pos[0]);
+            replacement.push_back(m_edges[i].he->twin->vertex->pos[1]);
+            replacement.push_back(m_edges[i].he->twin->vertex->pos[2]);
+        }
+
+        memcpy((char*)ptr, replacement.data(), length);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 }

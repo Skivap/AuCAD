@@ -78,7 +78,14 @@ public:
 
 private:
     // Processor Implementation =============================================================================================================
+    Eigen::MatrixXd m_V;   // Original positions
+    Eigen::MatrixXi m_F;   // Face indices
+    Eigen::VectorXi m_b;   // Constraint indices
+    Eigen::MatrixXd m_bc;  // Constraint positions
+    igl::ARAPData   m_arap_data;
 public:
+    void precomputeARAP();
+    void precomputeConstraint();
     void computeARAP();
 
 

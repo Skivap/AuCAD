@@ -62,6 +62,8 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
     m_VBOmesh = m_mesh->getVBO();
     m_VBOwireframe = m_wireframe->getVBO();
     resetSelection();
+
+    precomputeARAP();
 }
 
 void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,

@@ -80,6 +80,8 @@ int MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f
 
     lastSelectedVertex = m_selectedVertices[selected_vertex] ? selected_vertex : -1;
     return lastSelectedVertex;
+
+    precomputeConstraint();
 }
 
 bool MeshData::rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,
