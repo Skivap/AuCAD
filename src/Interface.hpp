@@ -16,6 +16,7 @@ private:
     float timestep;
     bool safeTimeframe;
     bool doRefresh;
+    char * buffer;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
@@ -46,6 +47,8 @@ public:
     const float getTimeFrame() { return timestep; }
 
     const bool isHovered();
+
+    void setBuffer(char * b) { buffer = b; }
 };
 
 #endif // INTERFACE_HPP

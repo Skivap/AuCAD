@@ -58,6 +58,8 @@ void Interface::draw() {
     if (ImGui::RadioButton("Axis", m_selectionMode == SelectionMode::AxisDebug)) {
         m_selectionMode = SelectionMode::AxisDebug;
     }
+    ImGui::SameLine();
+    ImGui::InputText("Description", buffer, 64);
 
     ImGui::Separator();
 

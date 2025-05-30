@@ -51,7 +51,7 @@ public:
     const std::vector<Edge>& getEdges() { return m_edges; }
     const std::vector<Vertex>& getVertices() { return m_vertices; }
 
-    const Vertex& getVertex(int idx) { return m_vertices[idx]; }
+    Vertex& getVertex(int idx) { return m_vertices[idx]; }
 
     // Selection =============================================================================================================
 private:
@@ -118,6 +118,7 @@ public:
     Eigen::Vector3d normal;
 
     std::map<float, Eigen::Vector3d> timeframePos;
+    char desc[64];
 
     Eigen::Vector3d originalPos; // Original constraint
     // Eigen::Matrix4d deformedRot;

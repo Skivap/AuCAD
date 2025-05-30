@@ -172,6 +172,16 @@ void Engine::update() {
     if(m_interface->getSetTimeFrame()) {
         meshData->saveTimeFrame(m_interface->getTimeFrame());
     }
+
+    const int idx = meshData->getLastSelectedVertex();
+    if(idx != -1) {
+        Vertex& v = meshData->getVertex(idx);
+        m_interface->setBuffer(v.desc);
+    }
+    else {
+        char buf[64] = "Select null vertex";
+        m_interface->setBuffer(buf);
+    }
 }
 
 void Engine::run()
