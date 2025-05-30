@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ==========================================
 # External Libraries (Submodules)
 # ==========================================
-
 # Eigen (The CMake of Eigen is shit man)
 add_subdirectory(external/eigen)
 # GLFW

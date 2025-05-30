@@ -233,3 +233,36 @@ void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
+
+
+void MeshData::refreshPosition(float time) {
+    for (Vertex& v: m_vertices) {
+        Eigen::Vector3d interpolated = v.getInterpolatedPos(time);
+        Eigen::Vector3f interpolated_float = interpolated.cast<float>();
+        m_pointCloud->updateOffset(v.index, interpolated_float);
+        v.pos = interpolated;
+    }
+    refreshPosition();
+}
+
+Eigen::Vector3d Vertex::getInterpolatedPos(float time) {
+    if (timeframePos.empty())
+        return pos;
+
+    auto upper = timeframePos.lower_bound(time);
+    if (upper == timeframePos.begin())
+        return upper->second;
+    if (upper == timeframePos.end())
+        return std::prev(upper)->second;
+
+    auto lower = std::prev(upper);
+
+    float t0 = lower->first;
+    float t1 = upper->first;
+
+    const Eigen::Vector3d& p0 = lower->second;
+    const Eigen::Vector3d& p1 = upper->second;
+
+    float alpha = (time - t0) / (t1 - t0);
+    return (1 - alpha) * p0 + alpha * p1;
+}

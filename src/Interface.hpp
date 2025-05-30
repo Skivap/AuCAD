@@ -13,7 +13,9 @@ private:
     bool m_computeDeformedPos;
 
     float m_weightThreshold;
-    bool weightUpdate;
+    float timestep;
+    bool safeTimeframe;
+    bool doRefresh;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
@@ -38,8 +40,10 @@ public:
     const int getVisualizeMode(){ return m_visualizeMode; }
     const bool getCompute() { return m_computeDeformedPos; }
 
-    const bool getWeightUpdate() { return weightUpdate; }
+    const bool getDoRefresh() { return doRefresh; }
+    const bool getSetTimeFrame() { return safeTimeframe; }
     const float getWeight() { return m_weightThreshold; }
+    const float getTimeFrame() { return timestep; }
 
     const bool isHovered();
 };

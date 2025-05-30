@@ -147,10 +147,6 @@ void Engine::update() {
         // meshData->computeLaplacianSurfaceModeling();
     }
 
-    if(lastMode == 3 && m_interface->getWeightUpdate()) {
-        meshData->refreshTriangleColor(MeshVisMode::Weight, m_interface->getWeight());
-    }
-
     if(instance->m_isDraggingAxis == true) {
         // Axis Logic Update
         double xpos, ypos;
@@ -165,6 +161,16 @@ void Engine::update() {
         if(idx != -1) {
             meshData->changeVertexPosition(idx, t);
         }
+    }
+
+    if(instance->m_interface->getDoRefresh()) {
+        Gizmo* gizmo = instance->m_renderer->getGizmo();
+        gizmo->clearSelection();
+        meshData->refreshPosition(m_interface->getTimeFrame());
+    }
+
+    if(m_interface->getSetTimeFrame()) {
+        meshData->saveTimeFrame(m_interface->getTimeFrame());
     }
 }
 

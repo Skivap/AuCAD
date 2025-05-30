@@ -5,7 +5,8 @@
 #include <imgui_impl_opengl3.h>
 
 Interface::Interface(GLFWwindow* window, int screen_width, int screen_height)
-    : m_window(window), m_width(screen_width), m_height(screen_height), m_computeDeformedPos(false), weightUpdate(false), m_weightThreshold(0.1f)
+    : m_window(window), m_width(screen_width), m_height(screen_height), m_computeDeformedPos(false), safeTimeframe(false), m_weightThreshold(0.1f),
+      doRefresh(false), timestep(0.0f)
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -34,52 +35,43 @@ void Interface::resize(int width, int height) {
 }
 
 void Interface::draw() {
-    m_visualizeMode = 0; // TODO: Find a way for better visualization
     m_computeDeformedPos = false;
-    weightUpdate = false;
+    safeTimeframe = false;
+    doRefresh = false;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(250, m_height));
+    // Position at the bottom
+    float windowHeight = 200.0f;
+    ImGui::SetNextWindowPos(ImVec2(0, m_height - windowHeight));
+    ImGui::SetNextWindowSize(ImVec2(m_width, windowHeight));
+
     ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     ImGui::Text("Selection Mode:");
-    if (ImGui::RadioButton("None", m_selectionMode == SelectionMode::None)) {
-        m_selectionMode = SelectionMode::Triangle;
-    }
-    if (ImGui::RadioButton("Triangle", m_selectionMode == SelectionMode::Triangle)) {
-        m_selectionMode = SelectionMode::Triangle;
-    }
     if (ImGui::RadioButton("Vertex", m_selectionMode == SelectionMode::Vertex)) {
         m_selectionMode = SelectionMode::Vertex;
     }
+    ImGui::SameLine();
     if (ImGui::RadioButton("Axis", m_selectionMode == SelectionMode::AxisDebug)) {
         m_selectionMode = SelectionMode::AxisDebug;
     }
 
-    if (ImGui::Button("Visualize Default")) {
-        m_visualizeMode = 1;
-    }
-
-    if (ImGui::Button("Visualize Normal")) {
-        m_visualizeMode = 2;
-    }
-
-    if (ImGui::Button("Visualize Weight")) {
-        m_visualizeMode = 3;
-    }
-
-    if(ImGui::Button("Compute ARAP")) {
-        m_computeDeformedPos = true;
-    }
-
     ImGui::Separator();
-    ImGui::Text("Parameters:");
-    if(ImGui::SliderFloat("Weight Threshold", &m_weightThreshold, 0.0f, 0.2f, "%.3f", ImGuiSliderFlags_None)) {
-        weightUpdate = true;
+
+    ImGui::Text("Visualization:");
+    if (ImGui::Button("Default")) m_visualizeMode = 1;
+    ImGui::SameLine();
+    if (ImGui::Button("Normal")) m_visualizeMode = 2;
+    ImGui::SameLine();
+    if (ImGui::Button("Compute ARAP")) m_computeDeformedPos = true;
+    ImGui::SameLine();
+    if (ImGui::Button("Safe Timeframe")) safeTimeframe = true;
+
+    if (ImGui::SliderFloat("Timestep", &timestep, 0.0f, 10.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp)) {
+        doRefresh = true;
     }
 
     ImGui::End();

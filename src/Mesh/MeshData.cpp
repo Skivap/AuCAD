@@ -64,6 +64,7 @@ MeshData::MeshData(Shader* shader, Shader* wireframe_shader, Shader* pointcloud_
     resetSelection();
 
     precomputeARAP();
+    saveTimeFrame(0);
 }
 
 void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vector<Eigen::Vector3f>& normals,
@@ -79,7 +80,7 @@ void MeshData::init(const std::vector<Eigen::Vector3f>& vertices, const std::vec
         m_vertices[i].index = i;
 
         m_vertices[i].originalPos = m_vertices[i].pos;
-        m_vertices[i].deformedRot = Eigen::Matrix4d::Identity();
+        // m_vertices[i].deformedRot = Eigen::Matrix4d::Identity();
     }
 
     // Setup HalfEdge ========================================

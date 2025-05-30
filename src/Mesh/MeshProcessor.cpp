@@ -36,6 +36,12 @@ void MeshData::precomputeConstraint() {
     igl::arap_precomputation(m_V, m_F, m_V.cols(), m_b, m_arap_data);
 }
 
+void MeshData::saveTimeFrame(float time) {
+    for(Vertex& v: m_vertices) {
+        v.timeframePos[time] = v.pos;
+    }
+}
+
 void MeshData::computeARAP() {
     precomputeConstraint();
     for (int i = 0; i < m_b.size(); ++i) {

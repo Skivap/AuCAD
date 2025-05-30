@@ -5,6 +5,7 @@
 #include <Eigen/Sparse>
 #include <glad/glad.h>
 #include <igl/arap.h>
+#include <map>
 
 #include "../Utilities/Shader.hpp"
 
@@ -87,7 +88,7 @@ public:
     void precomputeARAP();
     void precomputeConstraint();
     void computeARAP();
-
+    void saveTimeFrame(float time);
 
 private:
     // Visualization Implementation =============================================================================================================
@@ -102,6 +103,7 @@ public:
     void changeVertexPosition(int idx, Eigen::Vector3f pos);
 
     void refreshPosition();
+    void refreshPosition(float time);
 };
 
 // Vertex Data ======================================================================================
@@ -115,12 +117,16 @@ public:
     Eigen::Vector3d pos;
     Eigen::Vector3d normal;
 
+    std::map<float, Eigen::Vector3d> timeframePos;
+
     Eigen::Vector3d originalPos; // Original constraint
-    Eigen::Matrix4d deformedRot;
+    // Eigen::Matrix4d deformedRot;
 public:
     Vertex() :
         he(nullptr) {}
     ~Vertex() {}
+
+    Eigen::Vector3d getInterpolatedPos(float time);
 };
 
 // Edge Data ======================================================================================
