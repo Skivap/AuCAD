@@ -256,7 +256,7 @@ std::vector<ControlPoint> DeformationGenerator::extractControlPointsFromMesh(Mes
         if (selectedVertices[i]) {
             const Vertex& vertex = vertices[i];
             std::string role = roleFromVertexDescription(vertex.desc);
-            Eigen::Vector3f position = eigenVectorFromPosition(vertex.pos);
+            Eigen::Vector3f position = eigenVectorFromPosition(vertex.originalPos);
 
             controlPoints.emplace_back(static_cast<int>(i), role, position);
         }
