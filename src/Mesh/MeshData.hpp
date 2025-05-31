@@ -13,6 +13,9 @@
 #include "../Visualizer/Wireframe.hpp"
 #include "../Visualizer/PointCloud.hpp"
 
+// Include GenAPI for animation support
+#include "../GenAPI/GenAPI.hpp"
+
 class Vertex;
 class Edge;
 class Triangle;
@@ -90,8 +93,19 @@ public:
     void precomputeConstraint();
     void computeARAP();
     void saveTimeFrame(float time);
+    
+    // Animation frame management
+    void storeAnimationFrames(const GenAPI::AnimationSequence& frames);
+    void applyAnimationFrame(int frameIndex);
+    void clearAnimationFrames();
+    bool hasAnimationFrames() const;
+    int getAnimationFrameCount() const;
 
 private:
+    // Animation Implementation =============================================================================================================
+    GenAPI::AnimationSequence m_storedAnimationFrames;
+    std::map<int, Eigen::Vector3d> m_basePositions; // Store base positions before animation
+    
     // Visualization Implementation =============================================================================================================
     Object::Mesh* m_mesh;
     Object::Wireframe* m_wireframe;
