@@ -196,9 +196,9 @@ void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
             HalfEdge* he = m_triangles[t_idx].he->prev;
             for(int it = 0; it < 3; it++) {
                 Vertex* v = he->vertex;
-                replacement.push_back(v->pos[0]);
-                replacement.push_back(v->pos[1]);
-                replacement.push_back(v->pos[2]);
+                replacement.push_back(static_cast<float>(v->pos[0]));
+                replacement.push_back(static_cast<float>(v->pos[1]));
+                replacement.push_back(static_cast<float>(v->pos[2]));
                 he = he->next;
             }
         }
@@ -220,12 +220,12 @@ void MeshData::changeVertexPosition(int idx, Eigen::Vector3f pos) {
         std::vector<float> replacement;
 
         for(int i = 0; i < m_edges.size(); i++) {
-            replacement.push_back(m_edges[i].he->vertex->pos[0]);
-            replacement.push_back(m_edges[i].he->vertex->pos[1]);
-            replacement.push_back(m_edges[i].he->vertex->pos[2]);
-            replacement.push_back(m_edges[i].he->twin->vertex->pos[0]);
-            replacement.push_back(m_edges[i].he->twin->vertex->pos[1]);
-            replacement.push_back(m_edges[i].he->twin->vertex->pos[2]);
+            replacement.push_back(static_cast<float>(m_edges[i].he->vertex->pos[0]));
+            replacement.push_back(static_cast<float>(m_edges[i].he->vertex->pos[1]));
+            replacement.push_back(static_cast<float>(m_edges[i].he->vertex->pos[2]));
+            replacement.push_back(static_cast<float>(m_edges[i].he->twin->vertex->pos[0]));
+            replacement.push_back(static_cast<float>(m_edges[i].he->twin->vertex->pos[1]));
+            replacement.push_back(static_cast<float>(m_edges[i].he->twin->vertex->pos[2]));
         }
 
         memcpy((char*)ptr, replacement.data(), length);

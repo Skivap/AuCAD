@@ -39,6 +39,11 @@ private:
     bool m_isGenerating;
     std::string m_lastError;
     bool m_apiConnected;
+    
+    // ARAP all frames processing state
+    bool m_processingAllFrames;
+    int m_currentProcessingFrame;
+    int m_totalFramesToProcess;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();

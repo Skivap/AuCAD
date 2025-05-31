@@ -12,7 +12,8 @@ Interface::Interface(GLFWwindow* window, int screen_width, int screen_height)
     : m_window(window), m_width(screen_width), m_height(screen_height), m_computeDeformedPos(false), safeTimeframe(false), m_weightThreshold(0.1f),
       doRefresh(false), timestep(0.0f), m_meshData(nullptr), m_showVertexPanel(true),
       m_generator(std::make_unique<GenAPI::DeformationGenerator>()), m_showGenerationPanel(true),
-      m_animationLength(1), m_apiUrl("http://localhost:8080"), m_isGenerating(false), m_apiConnected(false)
+      m_animationLength(1), m_apiUrl("http://localhost:8080"), m_isGenerating(false), m_apiConnected(false),
+      m_processingAllFrames(false), m_currentProcessingFrame(0), m_totalFramesToProcess(11)
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -54,6 +55,21 @@ void Interface::draw() {
     safeTimeframe = false;
     doRefresh = false;
 
+    // Handle ARAP all frames processing
+    if (m_processingAllFrames) {
+        if (m_currentProcessingFrame < m_totalFramesToProcess) {
+            timestep = static_cast<float>(m_currentProcessingFrame);
+            m_computeDeformedPos = true;
+            safeTimeframe = true;
+            doRefresh = true;
+            m_currentProcessingFrame++;
+        } else {
+            // Finished processing all frames
+            m_processingAllFrames = false;
+            m_currentProcessingFrame = 0;
+        }
+    }
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -85,7 +101,20 @@ void Interface::draw() {
     ImGui::SameLine();
     if (ImGui::Button("Compute ARAP")) m_computeDeformedPos = true;
     ImGui::SameLine();
-    if (ImGui::Button("Safe Timeframe")) safeTimeframe = true;
+    if (ImGui::Button("Save Timeframe")) safeTimeframe = true;
+    ImGui::SameLine();
+    if (ImGui::Button("ARAP all frames")) {
+        // Start processing all full frames from 0.0 to 10.0
+        m_processingAllFrames = true;
+        m_currentProcessingFrame = 0;
+        m_totalFramesToProcess = 11; // 0, 1, 2, ..., 10
+    }
+    
+    // Show progress if processing
+    if (m_processingAllFrames) {
+        ImGui::SameLine();
+        ImGui::Text("Processing frame %d/%d", m_currentProcessingFrame, m_totalFramesToProcess);
+    }
 
     if (ImGui::SliderFloat("Timestep", &timestep, 0.0f, 10.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp)) {
         doRefresh = true;
