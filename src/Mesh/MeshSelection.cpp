@@ -84,6 +84,12 @@ int MeshData::selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f
     // precomputeConstraint();
 }
 
+void MeshData::deselectVertex(int index) {
+    if (index >= 0 && index < m_selectedVertices.size()) {
+        m_selectedVertices[index] = false;
+    }
+}
+
 bool MeshData::rayIntersectTriangle(const Eigen::Vector3f& org, const Eigen::Vector3f& dir, const Triangle& tri,
                                     Eigen::Vector3f& intersectPoint, float& t) {
     const Eigen::Vector3f& v0 = tri.he->vertex->pos.cast<float>();

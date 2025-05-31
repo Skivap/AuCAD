@@ -32,7 +32,7 @@ void Renderer::initShaders()
 
 void Renderer::initModels()
 {
-    m_meshData = new MeshData(m_meshShader, m_wireframeShader, m_meshShader, "./assets/bunny.ply");
+    m_meshData = new MeshData(m_meshShader, m_wireframeShader, m_meshShader, "./assets/armadillo.ply");
     m_plane = new Object::Wireframe(m_wireframeShader);
     m_gizmo = new Gizmo(m_axisShader);
 }

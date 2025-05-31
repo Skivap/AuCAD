@@ -51,6 +51,9 @@ add_executable(${PROJECT_NAME_VAR}
     # Gizmo Utilities
     src/Gizmo/Gizmo.cpp
 
+    # GenAPI
+    src/GenAPI/GenAPI.cpp
+
     # imgui
     external/imgui/src/imgui.cpp
     external/imgui/src/imgui_demo.cpp
