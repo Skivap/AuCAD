@@ -68,6 +68,7 @@ public:
     void resetSelection();
     void selectTriangle(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
     int selectVertex(const Eigen::Vector3f& cam_org, const Eigen::Vector3f& nearPoint);
+    void deselectVertex(int index);
     void selectEdges(); // TODO
 
     const std::vector<bool>& getSelectedVertices(){ return m_selectedVertices; }

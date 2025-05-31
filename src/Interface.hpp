@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+class MeshData;
+
 class Interface {
 private:
     GLFWwindow* m_window;
@@ -17,12 +19,20 @@ private:
     bool safeTimeframe;
     bool doRefresh;
     char * buffer;
+    
+    // Vertex panel state
+    MeshData* m_meshData;
+    bool m_showVertexPanel;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
 
     void resize(int width, int height);
     void draw();
+    void setMeshData(MeshData* meshData) { m_meshData = meshData; }
+    
+private:
+    void drawVertexPanel();
 
 public:
     enum SelectionMode{
