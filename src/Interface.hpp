@@ -3,6 +3,14 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <memory>
+#include <string>
+
+class MeshData;
+namespace GenAPI {
+    class DeformationGenerator;
+    struct GenerationResponse;
+}
 
 class Interface {
 private:
@@ -17,12 +25,38 @@ private:
     bool safeTimeframe;
     bool doRefresh;
     char * buffer;
+    
+    // Vertex panel state
+    MeshData* m_meshData;
+    bool m_showVertexPanel;
+    
+    // Generation panel state
+    std::unique_ptr<GenAPI::DeformationGenerator> m_generator;
+    bool m_showGenerationPanel;
+    char m_promptBuffer[256];
+    int m_animationLength;
+    std::string m_apiUrl;
+    bool m_isGenerating;
+    std::string m_lastError;
+    bool m_apiConnected;
+    
+    // ARAP all frames processing state
+    bool m_processingAllFrames;
+    int m_currentProcessingFrame;
+    int m_totalFramesToProcess;
 public:
     Interface(GLFWwindow* window, int screen_width, int screen_height);
     ~Interface();
 
     void resize(int width, int height);
     void draw();
+    void setMeshData(MeshData* meshData) { m_meshData = meshData; }
+    
+private:
+    void drawVertexPanel();
+    void drawGenerationPanel();
+    void checkApiConnection();
+    void generateDeformations();
 
 public:
     enum SelectionMode{

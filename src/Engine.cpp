@@ -40,6 +40,9 @@ Engine::Engine() : m_renderer(), m_trackball(), m_isDraggingAxis(false)
     m_renderer = new Renderer();
     m_trackball = new Trackball(m_screenWidth, m_screenHeight);
     m_interface = new Interface(m_window, m_screenWidth, m_screenHeight);
+    
+    // Set mesh data reference in interface
+    m_interface->setMeshData(m_renderer->getMeshData());
 }
 
 Engine::~Engine()
